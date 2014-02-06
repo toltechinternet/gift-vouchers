@@ -57,17 +57,17 @@ function voucher_sold(){
                 <h2>Sold Certificates</h2>
 				<table class="wp-list-table widefat fixed">
 				<tr>
-				<th style="font-weight:bold;background:#ccc;width:20px;">ID</th>
-				<th style="font-weight:bold;background:#ccc;">Name</th>
-				<th style="font-weight:bold;background:#ccc;">Email</th>
-				<th style="font-weight:bold;background:#ccc;">Address</th>
-				<th style="font-weight:bold;background:#ccc;">Telephone</th>
-				<th style="font-weight:bold;background:#ccc;">Recipient Name</th>
-				<th style="font-weight:bold;background:#ccc;">Delivery Method</th>
-				<th style="font-weight:bold;background:#ccc;">Cost</th>
-				<th style="font-weight:bold;background:#ccc;">Status</th>
-				<th style="font-weight:bold;background:#ccc;">Pending Reason</th>
-				<th></th>
+				<th style="color: white; font-weight:bold;background:#0074a2;width:20px;">ID</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Name</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Email</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Address</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Telephone</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Recipient Name</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Delivery Method</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Cost</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Status</th>
+				<th style="color: white; font-weight:bold;background:#0074a2;">Pending Reason</th>
+				<th style="background:#0074a2;"></th>
 				</tr>';
 				
 				$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers" );
