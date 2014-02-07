@@ -48,7 +48,25 @@ add_action('admin_menu', 'theme_options_panel');
 
 function voucher_settings(){
                 echo '<div class="wrap"><div id="icon-options-general" class="icon32"><br></div>
-                <h2>Settings</h2></div>';
+                
+                <h2>Settings</h2>
+                
+                <h3>General Settings</h3>
+                Company Name<br><input type="text" id="company_name" name="company_name"><br><br>
+                Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info"></textarea><br><br>
+                Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions"></textarea><br><br>
+                <hr>
+
+                <h3>Paypal Settings</h3>
+                Live Paypal Account<br><input type="text" id="live_account" name="live_account"><br><br>
+                Test Paypal Account<br><input type="text" id="test_account" name="test_account"><br><br>
+                Mode<br><select><option>Test Mode</option><option>Live Mode</option></select><br><br>
+                Return URL<br><input type="text" id="return_url" name="return_url"><br><br>
+                Cancel URL<br><input type="text" id="cancel_url" name="cancel_url"><br><br>
+                Notify URL<br><input type="text" id="notify_url" name="notify_url"><br><br>
+                <hr>
+                
+                </div>';
 }
 
 function voucher_sold(){

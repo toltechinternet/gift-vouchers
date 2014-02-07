@@ -19,6 +19,7 @@ function gift_voucher_activation() {
 	
 	$table_name = $wpdb->prefix . 'toltech_gift_vouchers';
 	
+    //Create table to store purchased gift vouchers
 	$wpdb->query("CREATE TABLE " . $table_name . " (
 	  id int(11) NOT NULL AUTO_INCREMENT,
 	  name VARCHAR(225) NOT NULL,
@@ -32,6 +33,16 @@ function gift_voucher_activation() {
 	  pending_reason text,
 	  PRIMARY KEY (`id`)
 	)");
+    
+    //If installing plugin for first time, add a test record
+    $voucher_count = $wpdb->query("SELECT * FROM ".$table_name);
+    if($voucher_count==0){
+        $wpdb->query("INSERT INTO ".$table_name."(name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES ('John Doe','j.doe@test.com','123 Fake Street','123456789','Jane Doe','Email','2000','Pending','Skint! -_-')");
+    }
+    
+    $table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
+    //Create table to store plugin settings
+
 }
 
 /*/ Set plugin base folder and include files /*/
@@ -40,3 +51,4 @@ $plugin_basename = plugin_basename(__FILE__);
 include('inc/paypal-settings.php');
 include('inc/shortcodes.php');
 include('inc/functions.php');
+?>
