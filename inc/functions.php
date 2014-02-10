@@ -47,72 +47,73 @@ function theme_options_panel(){
 add_action('admin_menu', 'theme_options_panel');
 
 function voucher_settings(){
-                echo '<div class="wrap"><div id="icon-options-general" class="icon32"><br></div>
                 
-                <h2>Settings</h2>
+                $output .= '<div class="wrap"><div id="icon-options-general" class="icon32"><br></div>';
                 
-                <h3>General Settings</h3>
-                Company Name<br><input type="text" id="company_name" name="company_name"><br><br>
-                Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info"></textarea><br><br>
-                Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions"></textarea><br><br>
-                <hr>
+	                 $output .= '<h2>Settings</h2>';
+	                
+	                 $output .= '<h3>General Settings</h3>';
+	                 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name"><br><br>';
+	                 $output .= 'Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info"></textarea><br><br>';
+	                 $output .= 'Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions"></textarea><br><br>';
+	                 
+	                 $output .= '<hr>';
 
-                <h3>Paypal Settings</h3>
-                Live Paypal Account<br><input type="text" id="live_account" name="live_account"><br><br>
-                Test Paypal Account<br><input type="text" id="test_account" name="test_account"><br><br>
-                Mode<br><select><option>Test Mode</option><option>Live Mode</option></select><br><br>
-                Return URL<br><input type="text" id="return_url" name="return_url"><br><br>
-                Cancel URL<br><input type="text" id="cancel_url" name="cancel_url"><br><br>
-                Notify URL<br><input type="text" id="notify_url" name="notify_url"><br><br>
-                <hr>
-                
-                </div>';
+	                 $output .= '<h3>Paypal Settings</h3>';
+	                 $output .= 'Live Paypal Account<br><input type="text" id="live_account" name="live_account"><br><br>';
+	                 $output .= 'Test Paypal Account<br><input type="text" id="test_account" name="test_account"><br><br>';
+	                 $output .= 'Mode<br><select><option>Test Mode</option><option>Live Mode</option></select><br><br>';
+	                 $output .= 'Return URL<br><input type="text" id="return_url" name="return_url"><br><br>';
+	                 $output .= 'Cancel URL<br><input type="text" id="cancel_url" name="cancel_url"><br><br>';
+	                 $output .= 'Notify URL<br><input type="text" id="notify_url" name="notify_url"><br><br>';
+	                 $output .= '<hr>';
+	                
+	            $output .= '</div>';
+
+                 echo $output;
 }
 
 function voucher_sold(){
-				global $wpdb;
-                $html='<div class="wrap"><div id="icon-options-general" class="icon32"><br></div>
-                <h2>Sold Certificates</h2>
-				<table class="wp-list-table widefat fixed">
-				<tr>
-				<th style="color: white; font-weight:bold;background:#0074a2;width:20px;">ID</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Name</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Email</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Address</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Telephone</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Recipient Name</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Delivery Method</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Cost</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Status</th>
-				<th style="color: white; font-weight:bold;background:#0074a2;">Pending Reason</th>
-				<th style="background:#0074a2;"></th>
-				</tr>';
-				
-				$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers" );
-				
+	global $wpdb;
+    
+    $output .= '<div class="wrap">';
+    $output .= '<div id="icon-options-general" class="icon32"><br></div>';
+    	$output .= '<h2>Sold Certificates</h2>';
+					$output .= '<table class="wp-list-table widefat fixed">';
+					$output .= '<tr>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;width:20px;">ID</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Name</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Email</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Address</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Telephone</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Recipient Name</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Delivery Method</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Cost</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Status</th>';
+						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Pending Reason</th>';
+						$output .= '<th style="background:#0074a2;"></th>';
+					$output .= '</tr>';
+	
+		$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers" );
+	
 				foreach($rows as $row){
-					$html.="<tr >";
-					$html.="<td>".$row->id."</td>";
-					$html.="<td>".$row->name."</td>";
-					$html.="<td><a href=\"mailto:".$row->email."\">".$row->email."</a></td>";
-					$html.="<td>".$row->address."</td>";
-					$html.="<td>".$row->telephone."</td>";
-					$html.="<td>".$row->recipient_name."</td>";
-					$html.="<td>".$row->delivery_method."</td>";
-					$html.="<td>".$row->voucher_cost."</td>";
-					$html.="<td>".$row->status."</td>";
-					$html.="<td>".$row->pending_reason."</td>";
-					$html.="<td>
-						[<a href=\"#\">EDIT</a>]
-						[<a href=\"#\">RESEND</a>]
-						</td>";
-					$html.="</tr>";
+					$output .= '<tr >';
+						$output .= '<td>'.$row->id.'</td>';
+						$output .= '<td>'.$row->name.'</td>';
+						$output .= '<td><a href=\"mailto:'.$row->email.'>'.$row->email.'</a></td>';
+						$output .= '<td>'.$row->address.'</td>';
+						$output .= '<td>'.$row->telephone.'</td>';
+						$output .= '<td>'.$row->recipient_name.'</td>';
+						$output .= '<td>'.$row->delivery_method.'</td>';
+						$output .= '<td>'.$row->voucher_cost.'</td>';
+						$output .= '<td>'.$row->status.'</td>';
+						$output .= '<td>'.$row->pending_reason.'</td>';
+						$output .= '<td><a href="#">Edit</a> - <a href="#"">Resend</a></td>';
+					$output .= '</tr>';
 				}
-				
-				
-				$html.='</table>
-				</div>';
-				echo $html;
+					$output .= '</table></div>';
+	
+			   echo $output;
 }
 
 
@@ -128,16 +129,17 @@ function gift_voucher_details_ui() {
 	$custom = get_post_custom($post->ID);
 
 	$price = $custom['_price'][0];
-	$description = $custom['_description'][0];  
-?>
+	$description = $custom['_description'][0];
 
-<p><label for="_price">Price (£):</label><br />
-<input type="text" name="_price" id="_price" size="40" value="<?php echo $price;?>" /></p>
+	$output .= '<p><label for="_price">Price (£):</label><br />';
+	$output .= '<input type="text" name="_price" id="_price" size="40" value="'. $price .'" /></p>';
+	
+	$output .= '<p><label for="_description">Description:</label><br />';
+	$output .= '<textarea type="text" name="_description" id="_description" cols="60" rows="5" />'. $description .'</textarea></p>';
 
-<p><label for="_description">Description:</label><br />
-<textarea type="text" name="_description" id="_description" cols="60" rows="5" /><?php echo $description;?></textarea></p>
+	echo $output;  
 
-<?php	}	
+}	
 
 /*/ Saving Meta Boxes /*/
 add_action('save_post', 'gift_voucher_save_post');
