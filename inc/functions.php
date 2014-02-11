@@ -47,31 +47,73 @@ function theme_options_panel(){
 add_action('admin_menu', 'theme_options_panel');
 
 function voucher_settings(){
-                
+    
+global $wpdb;
+$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
+$settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
+    
+    
+    
                 $output .= '<div class="wrap"><div id="icon-options-general" class="icon32"><br></div>';
                 
 	                 $output .= '<h2>Settings</h2>';
 	                
 	                 $output .= '<h3>General Settings</h3>';
-	                 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name"><br><br>';
-	                 $output .= 'Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info"></textarea><br><br>';
-	                 $output .= 'Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions"></textarea><br><br>';
+                     $output .= '<form action="'.get_admin_url().'admin-post.php" method="post">';
+                     $output .= '<input type="hidden" name="action" value="save_settings" />';
+	                 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name" value="'.$settings->company_name.'"><br><br>';
+	                 $output .= 'Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info">'.$settings->company_info.'</textarea><br><br>';
+	                 $output .= 'Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions">'.$settings->terms_conditions.'</textarea><br><br>';
 	                 
 	                 $output .= '<hr>';
 
 	                 $output .= '<h3>Paypal Settings</h3>';
-	                 $output .= 'Live Paypal Account<br><input type="text" id="live_account" name="live_account"><br><br>';
-	                 $output .= 'Test Paypal Account<br><input type="text" id="test_account" name="test_account"><br><br>';
-	                 $output .= 'Mode<br><select><option>Test Mode</option><option>Live Mode</option></select><br><br>';
-	                 $output .= 'Return URL<br><input type="text" id="return_url" name="return_url"><br><br>';
-	                 $output .= 'Cancel URL<br><input type="text" id="cancel_url" name="cancel_url"><br><br>';
-	                 $output .= 'Notify URL<br><input type="text" id="notify_url" name="notify_url"><br><br>';
+	                 $output .= 'Live Paypal Account<br><input type="text" id="pp_live_account" name="pp_live_account" value="'.$settings->pp_live_account.'"><br><br>';
+	                 $output .= 'Test Paypal Account<br><input type="text" id="pp_test_account" name="pp_test_account" value="'.$settings->pp_test_account.'"><br><br>';
+	                 $output .= 'Mode<br><select name="pp_mode"><option>Test Mode</option><option>Live Mode</option></select><br><br>';
+	                 $output .= 'Return URL<br><input type="text" id="pp_return_url" name="pp_return_url" value="'.$settings->pp_return_url.'"><br><br>';
+	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br>';
+	                 $output .= 'Notify URL<br><input type="text" id="pp_notify_url" name="pp_notify_url" value="'.$settings->pp_notify_url.'"><br><br>';
 	                 $output .= '<hr>';
+                     $output .= '<input type="submit" id="submit">';
+                     $output .= '</form>';
 	                
 	            $output .= '</div>';
 
                  echo $output;
 }
+    
+add_action('admin_post_save_settings', 'save_settings');
+function save_settings(){
+    //**************************************************************************//
+    // Update settings table or insert new record if first time adding settings //
+    //**************************************************************************//
+    global $wpdb;
+    
+    $company_name=$_REQUEST['company_name'];
+    $company_info=$_REQUEST['company_info'];
+    $terms_conditions=$_REQUEST['terms_conditions'];
+    $pp_live_account=$_REQUEST['pp_live_account'];
+    $pp_test_account=$_REQUEST['pp_test_account'];
+    $pp_mode=$_REQUEST['pp_mode'];
+    $pp_return_url=$_REQUEST['pp_return_url'];
+    $pp_cancel_url=$_REQUEST['pp_cancel_url'];
+    $pp_notify_url=$_REQUEST['pp_notify_url'];
+    
+    $table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
+    //If installing plugin for first time, add a test record
+    $voucher_count = $wpdb->query("SELECT * FROM ".$table_name);
+    if($voucher_count==0){
+        //INSERT
+        $wpdb->query("INSERT INTO ".$table_name."(company_name,company_info,terms_conditions,pp_live_account,pp_test_account,pp_mode,pp_return_url,pp_cancel_url,pp_notify_url) VALUES ('".$company_name."','".$company_info."','".$terms_conditions."','".$pp_live_account."','".$pp_test_account."','".$pp_mode."','".$pp_return_url."','".$pp_cancel_url."','".$pp_notify_url."')");
+    }else{
+        //UPDATE
+        $wpdb->query("UPDATE ".$table_name." SET company_name='".$company_name."',company_info='".$company_info."',terms_conditions='".$terms_conditions."',pp_live_account='".$pp_live_account."',pp_test_account='".$pp_test_account."',pp_mode='".$pp_mode."',pp_return_url='".$pp_return_url."',pp_cancel_url='".$pp_cancel_url."',pp_notify_url='".$pp_notify_url."'");
+    }
+    //return to settings page
+    wp_redirect(get_option('siteurl').'/wp-admin/admin.php?page=settings');
+}
+    
 
 function voucher_sold(){
 	global $wpdb;

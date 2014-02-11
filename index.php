@@ -17,9 +17,10 @@ register_activation_hook( __FILE__, 'gift_voucher_activation' );
 function gift_voucher_activation() {
 	global $wpdb;
 	
+    /*****************************************************/
+    // Create table to store purchased vouchers settings //
+    /*****************************************************/
 	$table_name = $wpdb->prefix . 'toltech_gift_vouchers';
-	
-    //Create table to store purchased gift vouchers
 	$wpdb->query("CREATE TABLE " . $table_name . " (
 	  id int(11) NOT NULL AUTO_INCREMENT,
 	  name VARCHAR(225) NOT NULL,
@@ -40,8 +41,23 @@ function gift_voucher_activation() {
         $wpdb->query("INSERT INTO ".$table_name."(name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES ('John Doe','j.doe@test.com','123 Fake Street','123456789','Jane Doe','Email','2000','Pending','Skint! -_-')");
     }
     
+    /*****************************************/
+    // Create table to store plugin settings //
+    /*****************************************/
     $table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
-    //Create table to store plugin settings
+	$wpdb->query("CREATE TABLE " . $table_name . " (
+                 id int(11) NOT NULL AUTO_INCREMENT,
+                 company_name VARCHAR(225),
+                 company_info TEXT,
+                 terms_conditions TEXT,
+                 pp_live_account VARCHAR(225),
+                 pp_test_account VARCHAR(225),
+                 pp_mode VARCHAR(50),
+                 pp_return_url VARCHAR(225),
+                 pp_cancel_url VARCHAR(225),
+                 pp_notify_url VARCHAR(225),
+                 PRIMARY KEY (`id`)
+                 )");
 
 }
 
