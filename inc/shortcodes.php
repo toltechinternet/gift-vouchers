@@ -37,14 +37,25 @@ function gift_voucher() {
 		$description = $custom['_description'][0];  
 	?>
 
+	<script type="text/javascript">
+		$(function() {
+			
+			$('.form').hide();
+			
+			$(this).click(function () {
+				$('.form').toggle();
+				return false;
+			});
 
+		});
+	</script>
 
 	<div class="voucher_container">
 	<img class="voucher_image" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/voucher.jpg">
 		<div class="voucher_information">
 			<strong>Amount:</strong> <?php echo $price; ?><br />
 			<strong>Description:</strong> <?php echo $description; ?><br />
-			<a href="#"><img class="button button-<?php echo get_the_ID(); ?>" alt="Buy Voucher" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/button.png" /></a>
+			<a class="buy-<?php echo get_the_ID(); ?>" href="#"><img class="button button-<?php echo get_the_ID(); ?>" alt="Buy Voucher" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/button.png" /></a>
 		</div>
 	</div>
 	<div class="clear"></div>
