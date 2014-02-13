@@ -29,7 +29,7 @@ function gift_voucher_activation() {
 	  telephone VARCHAR(50) NOT NULL,
 	  recipient_name VARCHAR(100) NOT NULL,
 	  delivery_method VARCHAR(50) NOT NULL,
-	  voucher_cost INT(11) NOT NULL,
+	  voucher_cost DECIMAL(10,2) NOT NULL,
 	  status VARCHAR(100) NOT NULL,
 	  pending_reason text,
 	  PRIMARY KEY (`id`)
@@ -38,7 +38,7 @@ function gift_voucher_activation() {
     //If installing plugin for first time, add a test record
     $voucher_count = $wpdb->query("SELECT * FROM ".$table_name);
     if($voucher_count==0){
-        $wpdb->query("INSERT INTO ".$table_name."(name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES ('John Doe','j.doe@test.com','123 Fake Street','123456789','Jane Doe','Email','2000','Pending','Skint! -_-')");
+        $wpdb->query("INSERT INTO ".$table_name."(name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES ('John Doe','j.doe@test.com','123 Fake Street','123456789','Jane Doe','Email','20','Pending','Skint! -_-')");
     }
     
     /*****************************************/

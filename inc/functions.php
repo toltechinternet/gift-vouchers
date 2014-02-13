@@ -70,7 +70,8 @@ $settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
 	                 $output .= '<h3>Paypal Settings</h3>';
 	                 $output .= 'Live Paypal Account<br><input type="text" id="pp_live_account" name="pp_live_account" value="'.$settings->pp_live_account.'"><br><br>';
 	                 $output .= 'Test Paypal Account<br><input type="text" id="pp_test_account" name="pp_test_account" value="'.$settings->pp_test_account.'"><br><br>';
-	                 $output .= 'Mode<br><select name="pp_mode"><option>Test Mode</option><option>Live Mode</option></select><br><br>';
+	                 if($settings->pp_mode=="Test Mode"){$a='selected="selected"';}else{$b='selected="selected"';}
+					 $output .= 'Mode<br><select name="pp_mode"><option '.$a.'>Test Mode</option><option '.$b.'>Live Mode</option></select><br><br>';
 	                 $output .= 'Return URL<br><input type="text" id="pp_return_url" name="pp_return_url" value="'.$settings->pp_return_url.'"><br><br>';
 	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br>';
 	                 $output .= 'Notify URL<br><input type="text" id="pp_notify_url" name="pp_notify_url" value="'.$settings->pp_notify_url.'"><br><br>';

@@ -1,16 +1,8 @@
 <?php
-
-/* TESTING VALUES
-echo 'Voucher Form ID: ' . $_POST['id'] . '<br />';
-echo 'Name: ' . $_POST['name'] . '<br />';
-echo 'Email: '  . $_POST['email'] . '<br />';
-echo 'Address: ' . $_POST['address'] . '<br />';
-echo 'Telephone: ' . $_POST['telephone'] . '<br />';
-echo 'Recipient: ' . $_POST['recipient'] . '<br />';
-echo 'Delivery: ' . $_POST['method'] . '<br />';
-echo 'Cost: ' . $_POST['cost'] . '<br />';
-*/
-
+//Allows us to use wordpress to query DB
+include_once('../../../../wp-config.php');
+include_once('../../../../wp-includes/wp-db.php');
+global $wpdb;
 
 // Database variables
 $MYSQL_USER='root';
@@ -53,27 +45,34 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		
 		print_r($data);
 	
+	//RECORD PURCHASE REQUEST
 	//Add to db, so even if the payment fails we still have a record of the attempt.
-	$query="INSERT INTO musselinn_toltech_gift_vouchers (name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status) VALUES (?,?,?,?,?,?,?,?)";
-	if ($stmt = $connection->prepare($query) or $stmt->error) {
-		$stmt->bind_param('ssssssis',$data['name'],$data['email'],$data['address'],$data['telephone'],$data['recipient_name'],$data['delivery_method'],$data['voucher_cost'],$data['status']);
-		$stmt->execute();	//execute query
-		$ID = $stmt->insert_id;
-		$stmt->close();//close statement
-		//echo "boo-".$ID;
-	}
-
+	$wpdb->query($wpdb->prepare(
+						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers (name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES (%s,%s,%s,%s,%s,%s,%f,%s,%s)",
+						$data['name'],
+						$data['email'],
+						$data['address'],
+						$data['telephone'],
+						$data['recipient_name'],
+						$data['delivery_method'],
+						$cost,
+						$data['status'],
+						'Never completed payment'
+						)
+				);
+	
 
 	//build query string to send onto paypal
-	//PAYPAL SETTINGS
-	$paypal_email = 'anthony-facilitator@toltech.co.uk';
-	$return_url = 'http://www.mussel-inn.com/giftvoucher/thankyou.php';
-	$cancel_url = 'http://www.mussel-inn.com/giftvoucher/cancelled.php';
-	$notify_url = 'http://www.mussel-inn.com/giftvoucher/process.php';
+	//PAYPAL SETTINGS FROM DB
+	$settings = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_settings",OBJECT);
 	
 	// Firstly Append paypal account to querystring
-	$querystring = "?business=".urlencode($paypal_email)."&";
-
+	if($settings->pp_mode=="Test Mode"){ //TEST MODE
+		$querystring = "?business=".urlencode($settings->pp_test_account)."&";
+	}else if($settings->pp_mode=="Live Mode"){ //LIVE MODE
+		$querystring = "?business=".urlencode($settings->pp_live_account)."&";
+	}
+	
 	// Append amount
 	$querystring .= "amount=".urlencode($cost)."&";
 	
@@ -99,13 +98,19 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	}
 
 	// Append paypal return addresses
-	$querystring .= "return=".urlencode(stripslashes($return_url))."&";
-	$querystring .= "cancel_return=".urlencode(stripslashes($cancel_url))."&";
-	$querystring .= "notify_url=".urlencode($notify_url);
-
+	$querystring .= "return=".urlencode(stripslashes($settings->pp_return_url))."&";
+	$querystring .= "cancel_return=".urlencode(stripslashes($settings->pp_cancel_url))."&";
+	$querystring .= "notify_url=".urlencode($settings->pp_notify_url);
+	
 	// Redirect to paypal IPN
-	echo 'https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring;
-	header('location:https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring);
+	if($settings->pp_mode=="Test Mode"){ //TEST MODE
+		echo 'https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring;
+		header('location:https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring);
+	}else if($settings->pp_mode=="Live Mode"){ //LIVE MODE
+		echo 'https://www.paypal.com/cgi-bin/webscr'.$querystring;
+		header('location:https://www.paypal.com/cgi-bin/webscr'.$querystring);
+	}
+	
 	exit();
 	
 
@@ -199,6 +204,15 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 					
 					// PAYMENT VALIDATED & VERIFIED!
 					if($valid_txnid && $valid_price){
+					
+					$wpdb->query($wpdb->prepare(
+						"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=%s, pending_reason=%s WHERE ID=%i",
+						$data['payment_status'],
+						$data['pending_reason'],
+						$data['custom']
+						)
+					);
+					
 					$message.= "VALIDATED & VERIFIED\n";
 								$query="UPDATE musselinn_toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
 								if ($stmt = $connection->prepare($query) or $stmt->error) {
