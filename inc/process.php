@@ -4,24 +4,6 @@ include_once('../../../../wp-config.php');
 include_once('../../../../wp-includes/wp-db.php');
 global $wpdb;
 
-// Database variables
-$MYSQL_USER='root';
-$MYSQL_PWD='relay3r';
-$MYSQL_HOST='TIS-SERVER';
-$MYSQL_DB="toltech1";
-$MYSQL_PORT="3306";
-
-//Connect to DB
-$connection=mysqli_connect($MYSQL_HOST,$MYSQL_USER,$MYSQL_PWD,$MYSQL_DB,$MYSQL_PORT);
-$connection->set_charset('utf8');
-// Check connection
-if (mysqli_connect_errno($connection)){
-	echo "Failed to connect to MySQL: " . mysqli_connect_error() ."<br>";
-}else{
-	echo "Successfully connected to remote DB!<br>";
-}
-
-
 if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	//THE REQUEST
 	
@@ -38,15 +20,38 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		$data['voucher_cost'] = $_REQUEST['cost'];
 		$data['status'] = "Pending";
 		$cost = $_REQUEST['cost'];
-		
-		//check email is valid
-		echo "Check Email Address Valid:<br>";
-		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){	exit("E-mail is not valid"); }else{echo "VALID";}
-		
-		print_r($data);
+
+//VALIDATE INPUT
+	//check email is valid
+	//echo "Check Email Address Valid:<br>";
+	$kick_back=0;
+	$error_msg="";
+		if($data['name']==""){$error_msg.="Please supply a <b>NAME</b>:";$kick_back=1;}
+		if($data['email']==""){$error_msg="Please supply an <b>EMAIL</b>:";$kick_back=1;}
+		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){	$error_msg.="Please supply a <b>VALID EMAIL ADDRESS</b>:";$kick_back=1;}
+		if($data['address']==""){$error_msg.="Please supply an <b>ADDRESS</b>:";$kick_back=1;}
+		if($data['telephone']==""){$error_msg.="Please supply a <b>TELEPHONE NUMBER</b>:";$kick_back=1;}
+		if($data['recipient_name']==""){$error_msg.="Please supply a <b>RECIPIENT NAME</b>:";$kick_back=1;}
+
+	
+	if($kick_back==1){
+		$redirect="";
+		$error_msg=substr($error_msg,0,-1);
+		$new_url = preg_replace('/&?error=[^&]*/', '', wp_get_referer(),-1,$count);
+		if (!$count){
+			$redirect=$new_url."?error=".urlencode($error_msg);	
+		}else{
+			$redirect=$new_url."error=".urlencode($error_msg);	
+		}	
+		wp_safe_redirect( $redirect );
+		exit();
+	}
+	
+	//print_r($data);
 	
 	//RECORD PURCHASE REQUEST
 	//Add to db, so even if the payment fails we still have a record of the attempt.
+	
 	$wpdb->query($wpdb->prepare(
 						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers (name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES (%s,%s,%s,%s,%s,%s,%f,%s,%s)",
 						$data['name'],
@@ -214,7 +219,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 					);
 					
 					$message.= "VALIDATED & VERIFIED\n";
-								$query="UPDATE musselinn_toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
+								$query="UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
 								if ($stmt = $connection->prepare($query) or $stmt->error) {
 									$stmt->bind_param('ssi',$data['payment_status'],$data['pending_reason'],$data['custom']);
 									$stmt->execute();	//execute query
@@ -235,7 +240,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 				}else if (strcmp ($res, "INVALID") == 0) {
 					// PAYMENT INVALID & INVESTIGATE MANUALY!
 					$message.= "PAYMENT INVALID\n";
-					$query="UPDATE musselinn_toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
+					$query="UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
 					if ($stmt = $connection->prepare($query) or $stmt->error) {
 						$stmt->bind_param('ssi',$data['payment_status'],$data['pending_reason'],$data['custom']);
 						$stmt->execute();	//execute query

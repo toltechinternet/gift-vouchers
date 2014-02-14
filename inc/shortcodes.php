@@ -8,9 +8,11 @@ function gift_voucher() {
 	);
 	$voucher = new WP_Query($voucher_args);
 	?>
+
+	
 	
 	<h1>Gift Vouchers</h1>
-
+	
 	<style>
 		.voucher_image{		float: left;	}
 		.voucher_container{		margin-top: 15px	}
@@ -35,22 +37,51 @@ function gift_voucher() {
 
 			#form
 
-		.red{	color: red;		}
+		.red{	color: #eee!important;		}
+		.error{padding:10px;background:pink;border:3px solid red;}
+		.error h2{color:red;}
+		.error ul{}
+		.error ul li b{color:red;}
 	</style>
 
-		<script type="text/javascript">
+	<script type="text/javascript">
+
 		$(function() {
 			
 			$('.buy').click(function () {
 				
 				var id = $(this).attr('id');
-			    $('.form' + id).toggle(500);
-			     return false;
+			    	
+			    	$('.form' + id).toggle(500);	
+
+			    	$('input:submit').attr('disabled', 'disabled');
+
+				    $('input:text').keyup(function(){
+				        
+				        if($(this).val().length !=0){
+				            $('input:submit').attr('disabled', false);
+				        }
+				        else
+				        	$('input:submit').attr('disabled',true);
+				    });
+
+			     	return false;
 				});
+
+
 
 		});
 	</script>
+	<?php
 	
+	if(isset($_REQUEST['error']) && $_REQUEST['error']!=""){
+		$foo = explode(":",urldecode($_REQUEST['error']));
+		echo "<div class=\"error\"><h2>Ooops!</h2>Its looks like you made a mistake:<ul>";
+		foreach($foo as $v){echo "<li>".$v."</li>";}
+		echo "</ul></div>";
+	}
+
+	?>
 	<?php if($voucher->have_posts()) : ?>
 	<?php while($voucher->have_posts()) : ?>
 	<?php $voucher->the_post(); ?>
@@ -75,10 +106,13 @@ function gift_voucher() {
 		
 		<form id="<?php echo get_the_ID(); ?>" method="post" action="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/inc/process.php">
 		<input type="hidden" id="id" name="id" value="<?php echo get_the_ID(); ?>" />
+		
+		<div style="margin-bottom: 15px;"><small><span style="color: red;">*</span> = Required Field</small></div>
+
 		<table>
 			<tr>
 				<td width="130px;">
-					<label for="name">Your Name <span class="red">*</span>:</label>
+					<label for="name">Your Name <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="name" name="name" />
@@ -86,7 +120,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="email">Email <span class="red">*</span>:</label>
+			        <label for="email">Email <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="email" name="email" />
@@ -94,7 +128,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="recipient">Address <span class="red">*</span>:</label>
+			        <label for="recipient">Address <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<textarea cols="24" rows="8" name="address"></textarea>
@@ -102,7 +136,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="telephone">Telephone <span class="red">*</span>:</label>
+			        <label for="telephone">Telephone <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="telephone" name="telephone" />
@@ -110,7 +144,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="recipient">Recipient Name <span class="red">*</span>:</label>
+			        <label for="recipient">Recipient Name <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="recipient" name="recipient" />
@@ -118,7 +152,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="method">Delivery Method <span class="red">*</span>:</label>
+			        <label for="method">Delivery Method <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<select name="method">
@@ -130,7 +164,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="cost">Cost <span class="red">*</span>:</label>
+			        <label for="cost">Cost <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<select name="cost">
@@ -143,7 +177,9 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td></td>
-				<td><input type="submit" value="Process Voucher" id="process" /></td>
+				<td><small>Payment is via Paypal. By clicking the Buy Voucher button below you will be taken to PayPal’s secure payment system.</small>
+				<br /><br />
+					<input type="submit" value="Process Voucher" id="process" /></td>
         </table>
 		</form>
 

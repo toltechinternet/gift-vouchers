@@ -143,7 +143,7 @@ function voucher_sold(){
 					$output .= '<tr >';
 						$output .= '<td>'.$row->id.'</td>';
 						$output .= '<td>'.$row->name.'</td>';
-						$output .= '<td><a href=\"mailto:'.$row->email.'>'.$row->email.'</a></td>';
+						$output .= '<td><a href="mailto:'.$row->email.'"">'.$row->email.'</a></td>';
 						$output .= '<td>'.$row->address.'</td>';
 						$output .= '<td>'.$row->telephone.'</td>';
 						$output .= '<td>'.$row->recipient_name.'</td>';
@@ -151,7 +151,7 @@ function voucher_sold(){
 						$output .= '<td>'.$row->voucher_cost.'</td>';
 						$output .= '<td>'.$row->status.'</td>';
 						$output .= '<td>'.$row->pending_reason.'</td>';
-						$output .= '<td><a href="#">Edit</a> - <a href="#"">Resend</a></td>';
+						$output .= '<td><a href="#">Edit</a> - <a href="#"">Resend</a> - <a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
 					$output .= '</tr>';
 				}
 					$output .= '</table></div>';
