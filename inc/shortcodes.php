@@ -54,17 +54,8 @@ function gift_voucher() {
 			    	
 			    	$('.form' + id).toggle(500);	
 
-			    	$('input:submit').attr('disabled', 'disabled');
-
-				    $('input:text').keyup(function(){
-				        
-				        if($(this).val().length !=0){
-				            $('input:submit').attr('disabled', false);
-				        }
-				        else
-				        	$('input:submit').attr('disabled',true);
-				    });
-
+			    	//$('input:submit').attr('disabled', 'disabled');
+			     	
 			     	return false;
 				});
 
@@ -95,7 +86,7 @@ function gift_voucher() {
 	<div class="voucher_container">
 	<img class="voucher_image" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/voucher.jpg">
 		<div class="voucher_information">
-			<strong>Amount:</strong> <?php echo $price; ?><br />
+			<strong>Amount:</strong> £<?php echo $price; ?><br />
 			<strong>Description:</strong> <?php echo $description; ?><br />
 			<a class="buy" id="<?php echo get_the_ID(); ?>" href="#"><img class="button button-<?php echo get_the_ID(); ?>" alt="Buy Voucher" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/button.png" /></a>
 		</div>

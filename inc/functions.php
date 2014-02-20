@@ -151,7 +151,10 @@ function voucher_sold(){
 						$output .= '<td>'.$row->voucher_cost.'</td>';
 						$output .= '<td>'.$row->status.'</td>';
 						$output .= '<td>'.$row->pending_reason.'</td>';
-						$output .= '<td><a href="#">Edit</a> - <a href="#"">Resend</a> - <a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
+						$output .= '<td>
+										<a href="#">Edit</a> - 
+										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address='.$row->address.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
+										<a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
 					$output .= '</tr>';
 				}
 					$output .= '</table></div>';
