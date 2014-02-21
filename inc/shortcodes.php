@@ -16,7 +16,7 @@ function gift_voucher() {
 	<style>
 		.voucher_image{		float: left;	}
 		.voucher_container{		margin-top: 15px	}
-		.voucher_information{	border: 1px solid #eeeeee; float: left; padding: 13px; background-color: white; width: 280px;	}
+		.voucher_information{	border: 1px solid #eeeeee; float: left; padding: 13px; background-color: white; width: 300px;	}
 		.button{	margin-top: 15px;	}
 		.clear{		clear: both;	}
 		#formTable{
@@ -24,7 +24,7 @@ function gift_voucher() {
 			float: left; 
 			padding: 13px; 
 			background-color: white; 
-			width: 380px;
+			width: 400px;
 			margin-top: 15px;
 		}
 			#formTable	input[type=text], textarea, select{
@@ -42,26 +42,92 @@ function gift_voucher() {
 		.error h2{color:red;}
 		.error ul{}
 		.error ul li b{color:red;}
+		.missing{color: #b94a48!important; background-color: #f2dede!important; border-color: #eed3d7!important;}
+		.hide{ display: none; }
+		.complete{ background-color: white!important; border: 1px solid #eeeeee!important; color: #333333!important;}
 	</style>
 
 	<script type="text/javascript">
 
 		$(function() {
-			
+
 			$('.buy').click(function () {
 				
 				var id = $(this).attr('id');
 			    	
-			    	$('.form' + id).toggle(500);	
+			    	$('.form' + id).toggle(500);
 
-			    	//$('input:submit').attr('disabled', 'disabled');
-			     	
+			    	$('#process-'+ id).click(function () {
+
+			    				
+			    				// Monetary Validation
+
+			    				if ($('#cost-monetary-'+ id).val() < '20.00') {
+									$('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
+
+									console.log($('#cost-monetary-'+ id).val());
+				           			return false
+								} else{
+									$('#cost-monetary-'+ id).removeClass('missing').addClass('complete')
+								}
+
+								if ($('#cost-monetary-'+ id).val() > '100.00') {
+									$('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+								} else{
+									$('#cost-monetary-'+ id).removeClass('missing').addClass('complete')
+								}
+
+
+								// Form Validation
+
+				         		if ($('#name-'+ id).val() == "") {
+				           			$('#name-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+
+				      			} else{
+				      				$('#name-'+ id).removeClass('missing').addClass('complete')
+				      			}
+
+				         		if ($('#email-'+ id).val() == "") {
+				           			$('#email-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+
+				      			} else{
+				      				$('#email-'+ id).removeClass('missing').addClass('complete')
+				      			}
+
+				      			if ($('#address-'+ id).val() == "") {
+				           			$('#address-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+
+				      			} else{
+				      				$('#address-'+ id).removeClass('missing').addClass('complete')
+				      			}
+
+				      			if ($('#telephone-'+ id).val() == "") {
+				           			$('#telephone-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+
+				      			} else{
+				      				$('#telephone-'+ id).removeClass('missing').removeClass('complete').addClass('complete')
+				      			}
+
+				      			if ($('#recipient-'+ id).val() == "") {
+				           			$('#recipient-'+ id).addClass('missing').removeClass('complete').focus();
+				           			return false
+
+				      			} else{
+				      				$('#recipient-'+ id).removeClass('missing').addClass('complete')
+				      			}
+
+				     		});
+
 			     	return false;
-				});
+			});
 
 
-
-		});
+	});
 	</script>
 	<?php
 	
@@ -78,10 +144,11 @@ function gift_voucher() {
 	<?php $voucher->the_post(); ?>
 
 	<?php 
-	$custom = get_post_custom(get_the_ID());
+		$custom = get_post_custom(get_the_ID());
 		$price = $custom['_price'][0];
 		$description = $custom['_description'][0];  
 	?>
+
 
 	<div class="voucher_container">
 	<img class="voucher_image" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/voucher.jpg">
@@ -101,12 +168,30 @@ function gift_voucher() {
 		<div style="margin-bottom: 15px;"><small><span style="color: red;">*</span> = Required Field</small></div>
 
 		<table>
+		<?php
+			if($price == '0.00'){
+				echo '<tr>
+						<td width="130px;">
+							<label for="name">Voucher Cost (£) <span style="color: red;">*</span>:</label>
+			   		 	</td>
+			   		 	<td>
+			   		 		<input type="text" id="cost-monetary-'. get_the_ID() .'" name="cost-monetary" value="0.00" /><br />
+			   		 		<small><div style="color: red; margin-bottom: 10px;">Amount Specified must be between £20 and £100</div></small>
+			   		 	</td>
+			   		 </tr>';
+			} else{
+				echo '<input type="hidden" id="cost" name="cost" value="'.$price.'" />';
+			}
+		?>
+
+		
 			<tr>
 				<td width="130px;">
 					<label for="name">Your Name <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<input type="text" id="name" name="name" />
+			    	<input type="text" id="name-<?php echo get_the_ID(); ?>" name="name" />
+			    	<span class="missing-name"></span>
 			    </td>
 			</tr>
 			<tr>
@@ -114,7 +199,11 @@ function gift_voucher() {
 			        <label for="email">Email <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<input type="text" id="email" name="email" />
+			    	<input type="text" id="email-<?php echo get_the_ID(); ?>" name="email" /><br />
+			    	<div style="margin-bottom: 10px;">
+			    		<small><strong>Case sensitive.</strong> 
+			    		Please ensure your email address is entered correctly. If it isn’t you may not receive your voucher if you opt for email delivery.</small>
+			    	</div>
 			    </td>
 			</tr>
 			<tr>
@@ -122,7 +211,7 @@ function gift_voucher() {
 			        <label for="recipient">Address <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<textarea cols="24" rows="8" name="address"></textarea>
+			    	<textarea cols="24" rows="8" id="address-<?php echo get_the_ID(); ?>" name="address"></textarea>
 			    </td>
 			</tr>
 			<tr>
@@ -130,7 +219,7 @@ function gift_voucher() {
 			        <label for="telephone">Telephone <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<input type="text" id="telephone" name="telephone" />
+			    	<input type="text" id="telephone-<?php echo get_the_ID(); ?>" name="telephone" />
 			    </td>
 			</tr>
 			<tr>
@@ -138,7 +227,7 @@ function gift_voucher() {
 			        <label for="recipient">Recipient Name <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<input type="text" id="recipient" name="recipient" />
+			    	<input type="text" id="recipient-<?php echo get_the_ID(); ?>" name="recipient" />
 			    </td>
 			</tr>
 			<tr>
@@ -146,31 +235,22 @@ function gift_voucher() {
 			        <label for="method">Delivery Method <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<select name="method">
-						<option value="Email">Email</option>
-						<option value="Postal">Postal</option>
-						<option value="Pickup">Pickup</option>
+			    	<select name="method" id="method">
+						<option value="Email">Delivery by Email</option>
+						<option value="Postal">Deliver by Postal (additional £3.50)</option>
+						<option value="Collection-Glasgow">Collection from Glasgow restaurant</option>
+						<option value="Collection-Edinburgh">Collection from Edinburgh restaurant</option>
 					</select>
 			    </td>
 			</tr>
 			<tr>
-				<td>
-			        <label for="cost">Cost <span style="color: red;">*</span>:</label>
-			    </td>
-			    <td>
-			    	<select name="cost">
-		                <option value="20.00">£20</option>
-		                <option value="30.00">£30</option>
-		                <option value="50.00">£50</option>
-		                <option value="Other">Other</option>
-           			</select>
-			    </td>
-			</tr>
-			<tr>
 				<td></td>
-				<td><small>Payment is via Paypal. By clicking the Buy Voucher button below you will be taken to PayPal’s secure payment system.</small>
+				<td>
+				<a style="color: blue;" href="#">Delivery Information</a><br />
+				<a style="color: blue;" href="#">Terms and Conditions</a><br /><br />
+				<small>Payment is via Paypal. By clicking the Buy Voucher button below you will be taken to PayPal’s secure payment system.</small>
 				<br /><br />
-					<input type="submit" value="Process Voucher" id="process" /></td>
+					<input type="submit" value="Process Voucher" id="process-<?php echo get_the_ID(); ?>" /></td>
         </table>
 		</form>
 

@@ -20,6 +20,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		$data['voucher_cost'] = $_REQUEST['cost'];
 		$data['status'] = "Pending";
 		$cost = $_REQUEST['cost'];
+		$data['cost-monetary'] = $_REQUEST['cost-monetary'];
 
 //VALIDATE INPUT
 	//check email is valid
@@ -31,7 +32,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){	$error_msg.="Please supply a <b>VALID EMAIL ADDRESS</b>:";$kick_back=1;}
 		if($data['address']==""){$error_msg.="Please supply an <b>ADDRESS</b>:";$kick_back=1;}
 		if($data['telephone']==""){$error_msg.="Please supply a <b>TELEPHONE NUMBER</b>:";$kick_back=1;}
-		if($data['recipient_name']==""){$error_msg.="Please supply a <b>RECIPIENT NAME</b>:";$kick_back=1;}
+		if($data['recipient_name']==""){$error_msg.="Please supply a <b>RECIPIENT NAME</b>:";$kick_back=1;}	
 
 	
 	if($kick_back==1){
@@ -65,7 +66,8 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 						'Never completed payment'
 						)
 				);
-	
+				
+	$ID=$wpdb->insert_id;
 
 	//build query string to send onto paypal
 	//PAYPAL SETTINGS FROM DB
@@ -121,7 +123,11 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 
 }else{
 	//THE RESPONSE
-		// Response from Paypal
+	
+	//PAYPAL SETTINGS FROM DB
+	$settings = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_settings",OBJECT);
+	
+	// Response from Paypal
 	$message = "THE RESPONSE\n";
 	
 	// read the post from PayPal system and add 'cmd'
@@ -147,23 +153,26 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	$message.="DATA\n";
 	foreach($data as $key => $v){$message.=$key." = ".$v."\n";}
 
-	// post back to PayPal system to validate
-	/*$header = "POST /cgi-bin/webscr HTTP/1.0\r\n";
-	$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-	$header .= "Content-Length: " . strlen($req) . "\r\n\r\n";*/
-	
 	$header = "POST /cgi-bin/webscr HTTP/1.1\r\n";
-	$header .= "Host: www.sandbox.paypal.com\r\n";  // www.paypal.com for a live site
+		if($settings->pp_mode=="Test Mode"){ //TEST MODE
+			$header .= "Host: www.sandbox.paypal.com\r\n";
+		}else if($settings->pp_mode=="Live Mode"){ //LIVE MODE
+			$header .= "Host: www.paypal.com\r\n"; 
+		}
 	$header .= "Content-Type: application/x-www-form-urlencoded\r\n";
 	$header .= "Content-Length: " . strlen($req) . "\r\n";
 	$header .= "Connection: close\r\n\r\n";
-
-	$fp = fsockopen ('ssl://www.sandbox.paypal.com', 443, $errno, $errstr, 30);
-
+	
+		if($settings->pp_mode=="Test Mode"){ //TEST MODE
+			$fp = fsockopen ('ssl://www.sandbox.paypal.com', 443, $errno, $errstr, 30);
+		}else if($settings->pp_mode=="Live Mode"){ //LIVE MODE
+			$fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
+		}
+		
 	if (!$fp) {
 		// HTTP ERROR - can't connect in order to VERIFY
-		$message.= "HTTP ERROR cant connect in order to VERIFY\n";
-	} else {
+		$message.= "HTTP ERROR cant connect in order to VERIFY\n\nError No. (".$errno.")\n\n".$errstr;
+	} else {	
 		$message.= "FILE OPEN\n";
 		$message.= "ATTEMPT TO VERIFY\n";	
 		fputs ($fp, $header . $req);
@@ -172,8 +181,12 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 				$res = fgets ($fp, 1024);
 				$message.= "READING LINE ".$x." \n >> ".$res."\n";
 				$res=trim($res);
+				
+				//READ FILE LINE BY LINE LOOKING FOR 'VERIFIED'
+				//IF FOUND THEN THE PAYMENT WAS SUCCESSFUL!
+				
 				if (strcmp ($res, "VERIFIED") == 0) {
-				$message.= "VERIFIED!\n";
+				$message.= ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:: VERIFIED!\n";
 				// Validate payment 
 				//Check unique txnid
 					function check_txnid($tnxid){
@@ -210,16 +223,21 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 					// PAYMENT VALIDATED & VERIFIED!
 					if($valid_txnid && $valid_price){
 					
-					$wpdb->query($wpdb->prepare(
-						"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=%s, pending_reason=%s WHERE ID=%i",
-						$data['payment_status'],
-						$data['pending_reason'],
-						$data['custom']
-						)
-					);
-					
-					$message.= "VALIDATED & VERIFIED\n";
-								$query="UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
+						//PAYMENT VERIFIED, UPDATE DATABASE
+						$message.= "VALIDATED & VERIFIED\n";
+						
+						$message.= "\n\n";		
+						$message.= "---------> UPDATE DB\n";
+						$message.= "UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status='".$data['payment_status']."', pending_reason='".$data['pending_reason']."' WHERE ID='".$data['custom']."'\n\n";		
+						$wpdb->query($wpdb->prepare(
+							"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=%s, pending_reason=%s WHERE ID=%i",
+							$data['payment_status'],
+							$data['pending_reason'],
+							$data['custom']
+							)
+						);
+						
+						/*	$query="UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
 								if ($stmt = $connection->prepare($query) or $stmt->error) {
 									$stmt->bind_param('ssi',$data['payment_status'],$data['pending_reason'],$data['custom']);
 									$stmt->execute();	//execute query
@@ -231,6 +249,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 									// E-mail admin or alert user
 									$message.= "ERROR INSERTING INTO DB!\n";
 								}
+						*/
 					}else{
 						// Payment made but data has been changed
 						// E-mail admin or alert user
@@ -255,13 +274,11 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 			}
 		fclose ($fp);
 		$message.= "FILE CLOSED\n";
-		
-		$to = "anthony@toltech.co.uk";
-		$subject = "Process.php Debug";
-		$from = "IPN@example.com";
-		$headers = "From:" . $from;
-		mail($to,$subject,$message,$headers);
-		
 	}
-
+		
+	$to = "joe@toltech.co.uk";
+	$subject = "Process.php Debug";
+	$from = "IPN@example.com";
+	$headers = "From:" . $from;
+	mail($to,$subject,$message,$headers);
 }
