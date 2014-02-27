@@ -1,0 +1,144 @@
+body{
+
+}
+
+/* Front End UI */
+
+.voucher_image{		float: left;	}
+.voucher_container{		margin-top: 15px	}
+.voucher_information{	
+	border: 1px solid #eeeeee; 
+	float: left; 
+	padding: 13px; 
+	background-color: white; 
+	width: 300px;	
+}
+
+.button{	margin-top: 15px;	}
+.clear{		clear: both;	}
+
+#formTable{
+	border: 1px solid #eeeeee; 
+	float: left; 
+	padding: 13px; 
+	background-color: white; 
+	width: 400px;
+	margin-top: 15px;
+}
+	#formTable	input[type=text], textarea, select{
+		border: 1px solid #e3e3e3;
+		font-size: 14px;
+		color: #333333;
+		padding: 5px;
+		width: 205px;
+	}
+
+	.formtitle{
+		padding: 8px;
+		background-color: #1280c8;
+		color: #ffffff;
+		margin: 10px 0px;
+	}
+
+/* Validation */
+
+.red{	color: #eee!important;		}
+.error{	
+	padding:10px; 
+	background:#f2dede; 
+	border:3px solid #eed3d7;	
+}
+	.error h2{	color:red;	}
+	.error ul{}
+	.error ul li b{color:red;}
+
+.missing{
+	color: #b94a48!important; 
+	background-color: #f2dede!important; 
+	border-color: #eed3d7!important;
+}
+
+.hide{ display: none; }
+.complete{ 
+	background-color: white!important; 
+	border: 1px solid #eeeeee!important; 
+	color: #333333!important;
+}
+
+/* Drop Down Delivery & Terms */
+
+.show_delivery{
+	color: blue!important; 
+	cursor: pointer; 
+	display: block;
+}
+
+	.delivery_content{ 
+		padding: 15px; 
+		font-size: 10px; 
+		background-color: #efefef; 
+		border: 1px solid #d6d6d6; 
+		margin: 10px 0px;	
+	}
+
+	.delivery_content h1{	
+		font-size: 16px!important; 
+		color: #333333!important; 
+		font-weight: bold!important; 
+	}
+
+.show_terms{
+	color: blue!important; 
+	cursor: pointer; 
+	display: block;
+}
+
+	.terms_content{ 
+		padding: 15px; 
+		font-size: 10px; 
+		background-color: #efefef; 
+		border: 1px solid #d6d6d6;
+		 margin: 10px 0px;	
+	}
+	
+	.terms_content h1{	
+		font-size: 16px!important; 
+		color: #333333!important; 
+		font-weight: bold!important; 
+	}
+
+/* Backend UI */
+
+.certificate_th{
+	color: #ffffff!important; 
+	font-weight:bold;
+	background:#0074a2;
+	padding: 10px!important;	
+}
+	.certificate_id{
+		color: #ffffff!important; 
+		font-weight:bold;
+		background:#0074a2;
+		padding: 10px!important;	
+		width: 20px;
+	}
+
+.moredetails{
+	margin-bottom: 5px;
+	padding: 15px; 
+	background-color: #f1f1f1; 
+	color: #333333; 
+	font-size: 14px;
+}
+	.hidedetails{
+		display: none; 
+		width: 647px;
+	}
+
+.update_certificate{	background-color: #0074a2;		}
+.update_width{	width: 110px;	}
+
+#company_info{	width: 300px;	}
+#terms_conditions{	width: 300px;	}
+.new{	background-color: #fffec6;	}
+.legend{ background-color: #fffec6!important; padding: 10px; margin-bottom: 10px; width: 370px;}

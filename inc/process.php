@@ -11,16 +11,25 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	
 	//Get details send from the form
 	$data=array();
+		$id=$_REQUEST['id'];
 		$data['name'] = $_REQUEST['name'];
 		$data['email'] = $_REQUEST['email'];
-		$data['address'] = $_REQUEST['address'];
+		$data['address1'] = $_REQUEST['address1'];
+		$data['address2'] = $_REQUEST['address2'];
+		$data['city'] = $_REQUEST['city'];
+		$data['state'] = $_REQUEST['state'];
+		$data['postalcode'] = $_REQUEST['postalcode'];
+		$data['country'] = $_REQUEST['country'];
 		$data['telephone'] = $_REQUEST['telephone'];
 		$data['recipient_name'] = $_REQUEST['recipient'];
 		$data['delivery_method'] = $_REQUEST['method'];
-		$data['voucher_cost'] = $_REQUEST['cost'];
+			if($data['delivery_method']=="Postal"){$shipping=3.50;}
+		//$data['voucher_cost'] = $_REQUEST['cost'];
 		$data['status'] = "Pending";
 		$cost = $_REQUEST['cost'];
-		$data['cost-monetary'] = $_REQUEST['cost-monetary'];
+		if(isset($_REQUEST['cost-monetary']) && $_REQUEST['cost-monetary']!=""){
+			$cost = $_REQUEST['cost-monetary'];
+		}
 
 //VALIDATE INPUT
 	//check email is valid
@@ -30,7 +39,9 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		if($data['name']==""){$error_msg.="Please supply a <b>NAME</b>:";$kick_back=1;}
 		if($data['email']==""){$error_msg="Please supply an <b>EMAIL</b>:";$kick_back=1;}
 		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){	$error_msg.="Please supply a <b>VALID EMAIL ADDRESS</b>:";$kick_back=1;}
-		if($data['address']==""){$error_msg.="Please supply an <b>ADDRESS</b>:";$kick_back=1;}
+		if($data['address1']==""){$error_msg.="Please supply <b>ADDRESS LINE 1</b>:";$kick_back=1;}
+		if($data['city']==""){$error_msg.="Please supply a <b>CITY</b>:";$kick_back=1;}
+		if($data['postalcode']==""){$error_msg.="Please supply a <b>POSTAL CODE</b>:";$kick_back=1;}
 		if($data['telephone']==""){$error_msg.="Please supply a <b>TELEPHONE NUMBER</b>:";$kick_back=1;}
 		if($data['recipient_name']==""){$error_msg.="Please supply a <b>RECIPIENT NAME</b>:";$kick_back=1;}	
 
@@ -54,16 +65,38 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	//Add to db, so even if the payment fails we still have a record of the attempt.
 	
 	$wpdb->query($wpdb->prepare(
-						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers (name,email,address,telephone,recipient_name,delivery_method,voucher_cost,status,pending_reason) VALUES (%s,%s,%s,%s,%s,%s,%f,%s,%s)",
+						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers (
+						name,
+						email,
+						address1,
+						address2,
+						city,
+						state,
+						postal_code,
+						country,
+						telephone,
+						recipient_name,
+						delivery_method,
+						voucher_cost,
+						status,
+						pending_reason,
+						date_purchased
+						) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%f,%s,%s,%s)",
 						$data['name'],
 						$data['email'],
-						$data['address'],
+						$data['address1'],
+						$data['address2'],
+						$data['city'],
+						$data['state'],
+						$data['postalcode'],
+						$data['country'],
 						$data['telephone'],
 						$data['recipient_name'],
 						$data['delivery_method'],
 						$cost,
 						$data['status'],
-						'Never completed payment'
+						'Payment Uncomplete',
+						current_time('mysql', 1)
 						)
 				);
 				
@@ -89,6 +122,9 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	//The item name
 	$querystring .= "item_name=".urlencode('Voucher')."&";
 	
+	//Delivery Cost if applicable
+	if($data['delivery_method']=="Postal"){$querystring .= "shipping=".urlencode($shipping)."&";} //if postal incur delivery fee
+	
 	//needs and image apparently
 	$querystring .= "submit=".urlencode('http://www.paypal.com/en_US/i/btn/x-click-but01.gif')."&";
 	
@@ -107,7 +143,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	// Append paypal return addresses
 	$querystring .= "return=".urlencode(stripslashes($settings->pp_return_url))."&";
 	$querystring .= "cancel_return=".urlencode(stripslashes($settings->pp_cancel_url))."&";
-	$querystring .= "notify_url=".urlencode($settings->pp_notify_url);
+	$querystring .= "notify_url=".urlencode(plugins_url().'/gift-vouchers/inc/process.php');
 	
 	// Redirect to paypal IPN
 	if($settings->pp_mode=="Test Mode"){ //TEST MODE
@@ -187,7 +223,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 				
 				if (strcmp ($res, "VERIFIED") == 0) {
 				$message.= ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:: VERIFIED!\n";
-				// Validate payment 
+
 				//Check unique txnid
 					function check_txnid($tnxid){
 						/*global $link;
@@ -224,32 +260,127 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 					if($valid_txnid && $valid_price){
 					
 						//PAYMENT VERIFIED, UPDATE DATABASE
-						$message.= "VALIDATED & VERIFIED\n";
+						$message.= "VALIDATED & VERIFIED\n\n";
 						
-						$message.= "\n\n";		
-						$message.= "---------> UPDATE DB\n";
-						$message.= "UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status='".$data['payment_status']."', pending_reason='".$data['pending_reason']."' WHERE ID='".$data['custom']."'\n\n";		
-						$wpdb->query($wpdb->prepare(
-							"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=%s, pending_reason=%s WHERE ID=%i",
-							$data['payment_status'],
-							$data['pending_reason'],
-							$data['custom']
-							)
-						);
+						//QUERY DB TO FIND OUT WHAT TYPE OF DELIVERY METHOD CHOSEN
+						$voucher_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers WHERE ID=%d",$data['custom']),OBJECT);
+						//QUERY DB FOR SETTINGS DATA
+						$settings = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_settings"),OBJECT);
 						
-						/*	$query="UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=?, pending_reason=? WHERE ID=?";
-								if ($stmt = $connection->prepare($query) or $stmt->error) {
-									$stmt->bind_param('ssi',$data['payment_status'],$data['pending_reason'],$data['custom']);
-									$stmt->execute();	//execute query
-									$stmt->close();//close statement
-									$message.= "SUCCESS - UPDATE DB status=".$data['payment_status']." WHERE ID=".$data['custom']."\n";
-									
-								}else{
-									// Error inserting into DB
-									// E-mail admin or alert user
-									$message.= "ERROR INSERTING INTO DB!\n";
+						//IF VOUCHER NEEDS EMAILS TO BE SENT
+						//This will stop the multiple issue of emails as multiple ipn responses come in
+						if($voucher_data->email_sent=="N"){
+							$message.="DELIVERY METHOD = ".$voucher_data->delivery_method;
+							$message.= "\n\n";		
+							$message.= "---------> UPDATE DB\n\n";
+							$message.= "UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status='".$data['payment_status']."', pending_reason='".$data['pending_reason']."' WHERE ID='".$data['custom']."'\n\n";		
+							$wpdb->query($wpdb->prepare(
+								"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET status=%s, pending_reason=%s, date_purchased=%s WHERE ID=%d",
+								$data['payment_status'],
+								$data['pending_reason'],
+								current_time('mysql', 1),
+								$data['custom']
+								)
+							);
+						
+							//DELIVERY METHODS			
+							if($voucher_data->delivery_method=="Email"){
+							//EMAIL
+								//SEND VOUCHER TO CUSTOMER
+								$message.= "ATTEMPT TO SEND VOUCHER TO CUSTOMER (".$voucher_data->email.") VIA EMAIL\n\n";
+								$message.= "INCLUDE send-certificate.php\n\n";
+								$recipients = $voucher_data->email; //Email to Customer
+								include('send-certificate.php');
+								
+								//SEND EMAIL TO ADMIN
+								$message.= "ALERT ADMIN(".$settings->company_email.") OF VOUCHER PURCHASE\n\n";
+								$recipients=$settings->company_email; //Email admin
+								$subject="Gift Voucher Purchased";
+								$body='<html><head></head><body style="font-family:helvetica">
+								<h1>Congratulations!</h1>
+								<h2>Gift Voucher Purchased</h2>
+								You are recieving this email because a Gift Voucher has recently been purchased.
+								<br>The customer decided on <strong>EMAIL</strong> as their delivery method so this is just an alert and requires no action on your part.
+								</body></html>';
+								$headers="From: vouchers@mussel-inn.com\r\n";
+								$headers.="Reply-To: vouchers@mussel-inn.com\r\n";
+								$headers.="MIME-Version: 1.0\r\n";
+								$headers.="Content-Type: text/html; charset=ISO-8859-1\r\n";
+								mail($recipients, $subject, $body, $headers);
+								
+								$message.= "END\n\n";
+							}
+							else if($voucher_data->delivery_method=="Collection-Glasgow" || $voucher_data->delivery_method=="Collection-Edinburgh" || $voucher_data->delivery_method=="Postal"){
+							//PICKUP & POSTAL
+								//SEND VOUCHER TO ADMIN FOR PICKUP OR POSTAL PURPOSES
+								$message.= "ATTEMPT TO SEND VOUCHER TO ADMIN (".$settings->company_email.") VIA EMAIL\n\n";
+								$message.= "INCLUDE send-certificate.php\n\n";
+								$recipients = $settings->company_email;//Email to Matt
+								include('send-certificate.php');
+								
+								//SEND EMAIL TO CUSTOMER
+								$message.= "ALERT CUSTOMER (".$voucher_data->email.") OF VOUCHER PURCHASE\n\n";
+								$recipients=$voucher_data->email;
+								$subject="Gift Voucher Purchase";
+								$body='<html><head></head><body style="font-family:helvetica;"><h1>Thank You!</h1>
+								You are recieving this email because you have recently purchased a Gift Voucher.<br><br>
+								<table rules="all" style="border: solid 1px #000; width: 600px;">
+								 <tr>
+								  <td style="width: 120px;"><strong>Purchased By:</strong></td>
+								  <td>'.$voucher_data->name.'( <a href="mailto:'.$voucher_data->email.'">'.$voucher_data->email.'</a> )</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Address:</strong></td>
+								  <td>'.$voucher_data->address1.' '.$voucher_data->address2.', '.$voucher_data->city.', '.$voucher_data->postal_code.', '.$voucher_data->state.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Telephone:</strong></td>
+								  <td>'.$voucher_data->telephone.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Delivery Method:</strong></td>
+								  <td>'.$voucher_data->delivery_method.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Purchased For:</strong></td>
+								  <td>'.$voucher_data->recipient_name.'</td>
+								 </tr>
+								</table><br />
+								<h2>What Do I Do Next?</h2>';
+								if($voucher_data->delivery_method=="Collection-Edinburgh"){
+									$body.='Pop into the EDINBURGH resturant to pickup your voucher.';
 								}
-						*/
+								else if($voucher_data->delivery_method=="Collection-Glasgow"){
+									$body.='Pop into the GLASGOW resturant to pickup your voucher.';
+								}
+								else if($voucher_data->delivery_method=="Postal"){
+									$body.='Sit back and relax, you will recieve your voucher in the mail in a few days time.';
+								}
+								$body.='</ul>
+								<h3>Thank you from everyone at '.$settings->company_name.'</h3>
+								</body></html>';
+								$headers="From: vouchers@mussel-inn.com\r\n";
+								$headers.="Reply-To: vouchers@mussel-inn.com\r\n";
+								$headers.="MIME-Version: 1.0\r\n";
+								$headers.="Content-Type: text/html; charset=ISO-8859-1\r\n";
+								mail($recipients, $subject, $body, $headers);
+								$message.= "END\n\n";
+							}
+							else{
+							//PROBLEM WITH DELIVERY METHOD, EMAIL ADMIN
+								$message.= "SEND EMAIL TO ADMIN TO ALERT OF VOUCHER PURCHASE WITHOUT DELIVERY METHOD SPECIFIED\n\n";
+							}
+							
+							//UPDATE VOUCHER RECORD TO SAY THAT EMAIL HAS NOW BEEN SENT
+							$wpdb->query($wpdb->prepare(
+								"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET email_sent='Y' WHERE ID=%d",
+								$data['custom']
+								)
+							);
+						}
+						
+						
+
 					}else{
 						// Payment made but data has been changed
 						// E-mail admin or alert user
@@ -280,5 +411,5 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	$subject = "Process.php Debug";
 	$from = "IPN@example.com";
 	$headers = "From:" . $from;
-	mail($to,$subject,$message,$headers);
+	//mail($to,$subject,$message,$headers);
 }

@@ -42,9 +42,11 @@ function theme_options_panel(){
   add_submenu_page( 'theme-options', 'Create Voucher', 'Create Voucher', 'manage_options', 'post-new.php?post_type=gift-vouchers');
   add_submenu_page( 'theme-options', 'Settings', 'Settings', 'manage_options', 'settings', 'voucher_settings');
   add_submenu_page( 'theme-options', 'Sold Certificates', 'Sold Certificates', 'manage_options', 'sold-certificates', 'voucher_sold');
+  add_submenu_page( null, 'Edit Certificate', 'Edit Certificate', 'manage_options', 'edit-certificates', 'edit_certificate');
 }
 
 add_action('admin_menu', 'theme_options_panel');
+
 
 function voucher_settings(){
     
@@ -61,10 +63,12 @@ $settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
 	                 $output .= '<h3>General Settings</h3>';
                      $output .= '<form action="'.get_admin_url().'admin-post.php" method="post">';
                      $output .= '<input type="hidden" name="action" value="save_settings" />';
-	                 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name" value="'.$settings->company_name.'"><br><br>';
+					 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name" value="'.$settings->company_name.'"><br><br>';
+	                 $output .= 'Admin Email<br><input type="text" id="company_email" name="company_email" value="'.$settings->company_email.'"><br><br>';
 	                 $output .= 'Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info">'.$settings->company_info.'</textarea><br><br>';
 	                 $output .= 'Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions">'.$settings->terms_conditions.'</textarea><br><br>';
-	                 
+	                 $output .= 'Delivery Information<br><textarea rows="7" cols="60" id="delivery_information" name="delivery_information">'.$settings->delivery_information.'</textarea><br><br>';
+					 
 	                 $output .= '<hr>';
 
 	                 $output .= '<h3>Paypal Settings</h3>';
@@ -74,7 +78,6 @@ $settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
 					 $output .= 'Mode<br><select name="pp_mode"><option '.$a.'>Test Mode</option><option '.$b.'>Live Mode</option></select><br><br>';
 	                 $output .= 'Return URL<br><input type="text" id="pp_return_url" name="pp_return_url" value="'.$settings->pp_return_url.'"><br><br>';
 	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br>';
-	                 $output .= 'Notify URL<br><input type="text" id="pp_notify_url" name="pp_notify_url" value="'.$settings->pp_notify_url.'"><br><br>';
 	                 $output .= '<hr>';
                      $output .= '<input type="submit" id="submit">';
                      $output .= '</form>';
@@ -92,29 +95,81 @@ function save_settings(){
     global $wpdb;
     
     $company_name=$_REQUEST['company_name'];
+	$company_email=$_REQUEST['company_email'];
     $company_info=$_REQUEST['company_info'];
     $terms_conditions=$_REQUEST['terms_conditions'];
+	$delivery_information=$_REQUEST['delivery_information'];
     $pp_live_account=$_REQUEST['pp_live_account'];
     $pp_test_account=$_REQUEST['pp_test_account'];
     $pp_mode=$_REQUEST['pp_mode'];
     $pp_return_url=$_REQUEST['pp_return_url'];
     $pp_cancel_url=$_REQUEST['pp_cancel_url'];
-    $pp_notify_url=$_REQUEST['pp_notify_url'];
     
     $table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
     //If installing plugin for first time, add a test record
     $voucher_count = $wpdb->query("SELECT * FROM ".$table_name);
     if($voucher_count==0){
         //INSERT
-        $wpdb->query("INSERT INTO ".$table_name."(company_name,company_info,terms_conditions,pp_live_account,pp_test_account,pp_mode,pp_return_url,pp_cancel_url,pp_notify_url) VALUES ('".$company_name."','".$company_info."','".$terms_conditions."','".$pp_live_account."','".$pp_test_account."','".$pp_mode."','".$pp_return_url."','".$pp_cancel_url."','".$pp_notify_url."')");
+        $wpdb->query(
+			$wpdb->prepare(
+			"INSERT INTO ".$table_name."(company_name,company_email,company_info,terms_conditions,delivery_information,pp_live_account,pp_test_account,pp_mode,pp_return_url,pp_cancel_url) VALUES (%s,%s,%s,%s,$s,%s,%s,%s,%s,%s)",
+			$company_name,
+			$company_email,
+			$company_info,
+			$terms_conditions,
+			$delivery_information,
+			$pp_live_account,
+			$pp_test_account,
+			$pp_mode,
+			$pp_return_url,
+			$pp_cancel_url
+			)
+		);
     }else{
         //UPDATE
-        $wpdb->query("UPDATE ".$table_name." SET company_name='".$company_name."',company_info='".$company_info."',terms_conditions='".$terms_conditions."',pp_live_account='".$pp_live_account."',pp_test_account='".$pp_test_account."',pp_mode='".$pp_mode."',pp_return_url='".$pp_return_url."',pp_cancel_url='".$pp_cancel_url."',pp_notify_url='".$pp_notify_url."'");
+        $wpdb->query(
+			$wpdb->prepare(
+			"UPDATE ".$table_name." SET company_name=%s,company_email=%s,company_info=%s,terms_conditions=%s,delivery_information=%s,pp_live_account=%s,pp_test_account=%s,pp_mode=%s,pp_return_url=%s,pp_cancel_url=%s",
+			$company_name,
+			$company_email,
+			$company_info,
+			$terms_conditions,
+			$delivery_information,
+			$pp_live_account,
+			$pp_test_account,
+			$pp_mode,
+			$pp_return_url,
+			$pp_cancel_url
+			)
+		);
     }
     //return to settings page
     wp_redirect(get_option('siteurl').'/wp-admin/admin.php?page=settings');
 }
-    
+
+add_action('admin_post_edit_voucher', 'edit_voucher');
+function edit_voucher(){
+	//***********************************
+	// Update voucher details
+	//***********************************
+	echo "here";
+	global $wpdb;
+	$table_name = $wpdb->prefix .'toltech_gift_vouchers';
+	$id=$_REQUEST['id'];
+	$name=$_REQUEST['name'];
+	$email=$_REQUEST['email'];
+	$telephone=$_REQUEST['telephone'];
+	$recipient=$_REQUEST['recipient'];
+	
+	 $wpdb->query(
+	 	$wpdb->prepare(
+			"UPDATE ".$table_name." SET name=%s, email=%s, telephone=%s, recipient_name=%s WHERE id=%d",
+			 $name,$email,$telephone,$recipient,$id
+		)
+	);
+	//return to sold vouchers page
+    wp_redirect(get_option('siteurl').'/wp-admin/admin.php?page=sold-certificates');
+}
 
 function voucher_sold(){
 	global $wpdb;
@@ -122,29 +177,32 @@ function voucher_sold(){
     $output .= '<div class="wrap">';
     $output .= '<div id="icon-options-general" class="icon32"><br></div>';
     	$output .= '<h2>Sold Certificates</h2>';
+    		$output .= '<div class="legend"><img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" style="float: left; margin-right: 10px; margin-top: -4px;" /> Certificates highlighted are new within a 5 day period.</div>';
 					$output .= '<table class="wp-list-table widefat fixed">';
 					$output .= '<tr>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;width:20px;">ID</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Name</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Email</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Address</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Telephone</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Recipient Name</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Delivery Method</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Cost</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Status</th>';
-						$output .= '<th style="color: white; font-weight:bold;background:#0074a2;">Pending Reason</th>';
-						$output .= '<th style="background:#0074a2;"></th>';
+						$output .= '<th class="certificate_id">ID</th>';
+						$output .= '<th class="certificate_th">Name</th>';
+						$output .= '<th class="certificate_th">Email</th>';
+						$output .= '<th class="certificate_th">Telephone</th>';
+						$output .= '<th class="certificate_th">Recipient Name</th>';
+						$output .= '<th class="certificate_th">Delivery Method</th>';
+						$output .= '<th class="certificate_th">Cost</th>';
+						$output .= '<th class="certificate_th">Status</th>';
+						$output .= '<th class="certificate_th">Pending Reason</th>';
+						$output .= '<th class="certificate_th"></th>';
 					$output .= '</tr>';
 	
-		$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers" );
+		$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers ORDER BY id desc" );
 	
 				foreach($rows as $row){
-					$output .= '<tr >';
-						$output .= '<td>'.$row->id.'</td>';
+					if( strtotime($row->date_purchased) > strtotime('-5 day') ) {
+    					$output .= '<tr class="new">';
+						} else { $output .= '<tr>'; }
+					
+						$output .= '<td><a id="id-'.$row->id.'" href="#">'.$row->id.'</a></td>';
 						$output .= '<td>'.$row->name.'</td>';
 						$output .= '<td><a href="mailto:'.$row->email.'"">'.$row->email.'</a></td>';
-						$output .= '<td>'.$row->address.'</td>';
+						//$output .= '<td>'.$row->address1.' '.$row->address2.'<br>'.$row->.'</td>';
 						$output .= '<td>'.$row->telephone.'</td>';
 						$output .= '<td>'.$row->recipient_name.'</td>';
 						$output .= '<td>'.$row->delivery_method.'</td>';
@@ -152,9 +210,41 @@ function voucher_sold(){
 						$output .= '<td>'.$row->status.'</td>';
 						$output .= '<td>'.$row->pending_reason.'</td>';
 						$output .= '<td>
-										<a href="#">Edit</a> - 
-										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address='.$row->address.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
+										<a id="button-'.$row->id.'" href="#">Edit</a> - 
+										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address1='.$row->address1.'&address2='.$row->address2.'&city='.$row->city.'&postalcode='.$row->postalcode.'&state='.$row->state.'&country='.$row->country.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
 										<a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
+					$output .= '</tr>';
+					$output .= '<tr>';
+						$output .= '<td colspan="10">';
+
+							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
+											<div class="moredetails">
+												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/paypal.png" style="float: left; margin-right: 15px;" />
+													<strong>Payment Time: </strong> '.$row->date_purchased.' - <strong>Email Sent: </strong> '.$row->email_sent.'
+											</div>
+										</div>';
+							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
+											<div class="moredetails">
+												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" />'.$row->address1.', '.$row->address2.', '.$row->city.', '.$row->state.', '.$row->postalcode.', '.$row->country.'
+											</div>
+										</div>';
+
+							$output .= '<div id="toggle-div-'.$row->id.'" style="display: none;">
+										<form action="'.get_admin_url().'admin-post.php" method="post">
+										<input type="hidden" name="action" value="edit_voucher" />
+											<table class="update_certificate">
+											<tr>
+												<td></td>
+												<td><input type="text" name="name" value="'.$row->name.'" class="update_width" /></td>
+												<td><input type="text" name="email" value="'.$row->email.'" class="update_width" /></td>
+												<td><input type="text" name="telephone" value="'.$row->telephone.'" class="update_width" /></td>
+												<td><input type="text" name="recipient" value="'.$row->recipient_name.'" class="update_width" /></td>
+												<td><input type="submit" value="Update" /><input type="hidden" name="id" value="'.$row->id.'" /></td>
+											</tr>
+											</table>
+										</form>
+										</div>';
+						$output .= '</td>';
 					$output .= '</tr>';
 				}
 					$output .= '</table></div>';

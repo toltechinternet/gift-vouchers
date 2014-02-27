@@ -9,126 +9,6 @@ function gift_voucher() {
 	$voucher = new WP_Query($voucher_args);
 	?>
 
-	
-	
-	<h1>Gift Vouchers</h1>
-	
-	<style>
-		.voucher_image{		float: left;	}
-		.voucher_container{		margin-top: 15px	}
-		.voucher_information{	border: 1px solid #eeeeee; float: left; padding: 13px; background-color: white; width: 300px;	}
-		.button{	margin-top: 15px;	}
-		.clear{		clear: both;	}
-		#formTable{
-			border: 1px solid #eeeeee; 
-			float: left; 
-			padding: 13px; 
-			background-color: white; 
-			width: 400px;
-			margin-top: 15px;
-		}
-			#formTable	input[type=text], textarea, select{
-				border: 1px solid #e3e3e3;
-				font-size: 14px;
-				color: #333333;
-				padding: 5px;
-				width: 205px;
-			}
-
-			#form
-
-		.red{	color: #eee!important;		}
-		.error{padding:10px;background:pink;border:3px solid red;}
-		.error h2{color:red;}
-		.error ul{}
-		.error ul li b{color:red;}
-		.missing{color: #b94a48!important; background-color: #f2dede!important; border-color: #eed3d7!important;}
-		.hide{ display: none; }
-		.complete{ background-color: white!important; border: 1px solid #eeeeee!important; color: #333333!important;}
-	</style>
-
-	<script type="text/javascript">
-
-		$(function() {
-
-			$('.buy').click(function () {
-				
-				var id = $(this).attr('id');
-			    	
-			    	$('.form' + id).toggle(500);
-
-			    	$('#process-'+ id).click(function () {
-
-			    				
-			    				// Monetary Validation
-
-			    				if ($('#cost-monetary-'+ id).val() < '20.00') {
-									$('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
-
-									console.log($('#cost-monetary-'+ id).val());
-				           			return false
-								} else{
-									$('#cost-monetary-'+ id).removeClass('missing').addClass('complete')
-								}
-
-								if ($('#cost-monetary-'+ id).val() > '100.00') {
-									$('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-								} else{
-									$('#cost-monetary-'+ id).removeClass('missing').addClass('complete')
-								}
-
-
-								// Form Validation
-
-				         		if ($('#name-'+ id).val() == "") {
-				           			$('#name-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-
-				      			} else{
-				      				$('#name-'+ id).removeClass('missing').addClass('complete')
-				      			}
-
-				         		if ($('#email-'+ id).val() == "") {
-				           			$('#email-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-
-				      			} else{
-				      				$('#email-'+ id).removeClass('missing').addClass('complete')
-				      			}
-
-				      			if ($('#address-'+ id).val() == "") {
-				           			$('#address-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-
-				      			} else{
-				      				$('#address-'+ id).removeClass('missing').addClass('complete')
-				      			}
-
-				      			if ($('#telephone-'+ id).val() == "") {
-				           			$('#telephone-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-
-				      			} else{
-				      				$('#telephone-'+ id).removeClass('missing').removeClass('complete').addClass('complete')
-				      			}
-
-				      			if ($('#recipient-'+ id).val() == "") {
-				           			$('#recipient-'+ id).addClass('missing').removeClass('complete').focus();
-				           			return false
-
-				      			} else{
-				      				$('#recipient-'+ id).removeClass('missing').addClass('complete')
-				      			}
-
-				     		});
-
-			     	return false;
-			});
-
-
-	});
-	</script>
 	<?php
 	
 	if(isset($_REQUEST['error']) && $_REQUEST['error']!=""){
@@ -153,7 +33,12 @@ function gift_voucher() {
 	<div class="voucher_container">
 	<img class="voucher_image" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/voucher.jpg">
 		<div class="voucher_information">
+		<?php
+		if($price == '0.00'){ ?>
+			<strong>Amount:</strong> £20.00 to £100.00<br />
+		<?php } else { ?>
 			<strong>Amount:</strong> £<?php echo $price; ?><br />
+		<?php } ?>
 			<strong>Description:</strong> <?php echo $description; ?><br />
 			<a class="buy" id="<?php echo get_the_ID(); ?>" href="#"><img class="button button-<?php echo get_the_ID(); ?>" alt="Buy Voucher" src="<?php echo get_bloginfo("url"); ?>/wp-content/plugins/gift-vouchers/images/button.png" /></a>
 		</div>
@@ -170,7 +55,11 @@ function gift_voucher() {
 		<table>
 		<?php
 			if($price == '0.00'){
-				echo '<tr>
+				echo '
+					<tr>
+						<th colspan="2"><div class="formtitle">Open Monetary Costing</div></th>
+					</tr>
+					<tr>
 						<td width="130px;">
 							<label for="name">Voucher Cost (£) <span style="color: red;">*</span>:</label>
 			   		 	</td>
@@ -184,7 +73,11 @@ function gift_voucher() {
 			}
 		?>
 
-		
+			<tr>
+				<th colspan="2">
+					<div class="formtitle">Your Information</div>
+				</th>
+			</tr>
 			<tr>
 				<td width="130px;">
 					<label for="name">Your Name <span style="color: red;">*</span>:</label>
@@ -208,10 +101,61 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="recipient">Address <span style="color: red;">*</span>:</label>
+			        <label for="address1">Address 1 <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<textarea cols="24" rows="8" id="address-<?php echo get_the_ID(); ?>" name="address"></textarea>
+			    	<input type="text" id="address1-<?php echo get_the_ID(); ?>" name="address1" />
+			    </td>
+			</tr>
+			<tr>
+				<td>
+			        <label for="address2">Address 2:</label>
+			    </td>
+			    <td>
+			    	<input type="text" id="address2-<?php echo get_the_ID(); ?>" name="address2" />
+			    </td>
+			</tr>
+			<tr>
+				<td>
+			        <label for="city">City <span style="color: red;">*</span>:</label>
+			    </td>
+			    <td>
+			    	<input type="text" id="city-<?php echo get_the_ID(); ?>" name="city" />
+			    </td>
+			</tr>
+			<tr>
+				<td>
+			        <label for="state">County / State:</label>
+			    </td>
+			    <td>
+			    	<input type="text" id="state-<?php echo get_the_ID(); ?>" name="state" />
+			    </td>
+			</tr>
+			<tr>
+				<td>
+			        <label for="postalcode">Postal Code <span style="color: red;">*</span>:</label>
+			    </td>
+			    <td>
+			    	<input type="text" id="postalcode-<?php echo get_the_ID(); ?>" name="postalcode" />
+			    </td>
+			</tr>
+			<tr>
+				<td>
+			        <label for="country">Country <span style="color: red;">*</span>:</label>
+			    </td>
+			    <td>
+			    	<select name="country" id="country-<?php echo get_the_ID(); ?>">
+						<option value="Australia">Australia</option>
+						<option value="Canada">Canada</option>
+						<option value="France">France</option>
+						<option value="Germany">Germany</option>
+						<option value="Ireland">Ireland</option>
+						<option value="Italy">Italy</option>
+						<option value="Netherlands">Netherlands</option>
+						<option value="Spain">Spain</option>
+						<option value="United Kingdom" selected="selected">United Kingdom</option>
+						<option value="United States">United States</option>
+					</select>
 			    </td>
 			</tr>
 			<tr>
@@ -221,6 +165,11 @@ function gift_voucher() {
 			    <td>
 			    	<input type="text" id="telephone-<?php echo get_the_ID(); ?>" name="telephone" />
 			    </td>
+			</tr>
+			<tr>
+				<th colspan="2">
+					<div class="formtitle">Voucher, Delivery and Payment</div>
+				</th>
 			</tr>
 			<tr>
 				<td>
@@ -246,8 +195,42 @@ function gift_voucher() {
 			<tr>
 				<td></td>
 				<td>
-				<a style="color: blue;" href="#">Delivery Information</a><br />
-				<a style="color: blue;" href="#">Terms and Conditions</a><br /><br />
+				<ul class="formattedList">
+					<li><a class="show_delivery" id="show_delivery-<?php echo get_the_ID(); ?>">Delivery Information</a></li>
+				</ul>
+					<div id="delivery_content-<?php echo get_the_ID(); ?>" class="delivery_content">
+						<h1>Delivery Information</h1>
+						
+						<?php
+							global $wpdb;
+							$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
+							$settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
+
+							$output .= $settings->delivery_information;
+
+							echo nl2br($output);
+						?>
+
+					</div>
+				<ul class="formattedList" style="margin-top: 0px!important; margin-bottom: 0px!important;">
+					<li><a class="show_terms" id="show_terms-<?php echo get_the_ID(); ?>">Terms and Conditions</a></li>
+				</ul>
+					<div id="terms_content-<?php echo get_the_ID(); ?>" class="terms_content">
+						<h1>Terms and Conditions</h1>
+
+						<?php
+							global $wpdb;
+							$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
+							$settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
+
+							$output .= $settings->terms_conditions;
+
+							echo nl2br($output);
+						?>
+						
+					</div>
+				
+				<br />
 				<small>Payment is via Paypal. By clicking the Buy Voucher button below you will be taken to PayPal’s secure payment system.</small>
 				<br /><br />
 					<input type="submit" value="Process Voucher" id="process-<?php echo get_the_ID(); ?>" /></td>

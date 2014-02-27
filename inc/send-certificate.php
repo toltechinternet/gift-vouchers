@@ -1,36 +1,28 @@
 <?php
-//Allows us to use wordpress to query DB
-include_once('../../../../wp-config.php');
-include_once('../../../../wp-includes/wp-db.php');
-global $wpdb;
-
-
-			/*$emails = array(
-                 //TEST MODE
-                 "anthony@toltech.co.uk",
-                 "joe@toltech.co.uk"
-            );
-
-            $recipients = implode(',', $emails); */
-            $recipients = $_GET['email'];
-            $subject = 'Mussel Inn Voucher - Resend';
+			$message.="--> INCLUDE OK\n\n";
+			
+            $subject = $settings->company_name.' Gift Voucher';
                 
             $body .= '<table rules="all" style="border: solid 1px #000; width: 600px;">
                  <tr>
                   <td style="width: 120px;"><strong>Purchased By:</strong></td>
-                  <td>' . strip_tags($_GET['name']) . ' ( <a href="mailto:' . strip_tags($_GET['email']) . '">' . strip_tags($_GET['email']) . '</a> )</td>
+                  <td>'.$voucher_data->name.'( <a href="mailto:'.$voucher_data->email.'">'.$voucher_data->email.'</a> )</td>
                  </tr>
                  <tr>
                   <td><strong>Address:</strong></td>
-                  <td>' . strip_tags($_GET['address1']) . ', ' . strip_tags($_GET['address2']) . ', ' . strip_tags($_GET['city']) . ', ' . strip_tags($_GET['postalcode']) . ', ' . strip_tags($_GET['state']) . ', ' . strip_tags($_GET['country']) . '</td>
+                  <td>'.$voucher_data->address1.' '.$voucher_data->address2.', '.$voucher_data->city.', '.$voucher_data->postal_code.', '.$voucher_data->state.'</td>
                  </tr>
                  <tr>
                   <td><strong>Telephone:</strong></td>
-                  <td>' . strip_tags($_GET['telephone']) . '</td>
+                  <td>'.$voucher_data->telephone.'</td>
+                 </tr>
+				 <tr>
+                  <td><strong>Delivery Method:</strong></td>
+                  <td>'.$voucher_data->delivery_method.'</td>
                  </tr>
                  <tr>
                   <td><strong>Purchased For:</strong></td>
-                  <td>' . strip_tags($_GET['recipient']) . '</td>
+                  <td>'.$voucher_data->recipient_name.'</td>
                  </tr>
                 </table><br />';
             
@@ -49,7 +41,7 @@ global $wpdb;
                                 To:
                           </td>
                           <td style="font-size: 20px; font-style: italic; text-align: center;">
-                               ' . strip_tags($_GET['recipient']) . '
+                               '.$voucher_data->recipient_name.'
                           </td>
                          </tr>
                          <tr>
@@ -62,7 +54,7 @@ global $wpdb;
                                 From:
                           </td>
                           <td style="font-size: 20px; font-style: italic; padding-top: 7px; text-align: center;">
-                                ' . strip_tags($_GET['name']) . '
+                                '.$voucher_data->name.'
                           </td>
                          </tr>
                          <tr>
@@ -105,7 +97,7 @@ global $wpdb;
                                 Amount:
                           </td>
                           <td style="font-size: 20px; font-style: italic; text-align: center;">&pound;
-                                ' . strip_tags($_GET['cost']) . '
+                                '.$voucher_data->voucher_cost.'
                           </td>
                          </tr>
                          <tr>
@@ -141,5 +133,4 @@ global $wpdb;
 			$headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
             mail($recipients, $subject, $body, $headers);
-        
-wp_redirect(get_option('siteurl').'/wp-admin/admin.php?page=sold-certificates');
+?>
