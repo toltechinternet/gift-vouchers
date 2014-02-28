@@ -62,22 +62,30 @@ $settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
 	                
 	                 $output .= '<h3>General Settings</h3>';
                      $output .= '<form action="'.get_admin_url().'admin-post.php" method="post">';
-                     $output .= '<input type="hidden" name="action" value="save_settings" />';
-					 $output .= 'Company Name<br><input type="text" id="company_name" name="company_name" value="'.$settings->company_name.'"><br><br>';
-	                 $output .= 'Admin Email<br><input type="text" id="company_email" name="company_email" value="'.$settings->company_email.'"><br><br>';
-	                 $output .= 'Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info">'.$settings->company_info.'</textarea><br><br>';
-	                 $output .= 'Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions">'.$settings->terms_conditions.'</textarea><br><br>';
-	                 $output .= 'Delivery Information<br><textarea rows="7" cols="60" id="delivery_information" name="delivery_information">'.$settings->delivery_information.'</textarea><br><br>';
+                     $output .= '<table>
+								 	<tr>
+								 		<td>
+								 			<input type="hidden" name="action" value="save_settings" />';
+					 			$output .= 'Company Name<br><input type="text" id="company_name" name="company_name" value="'.$settings->company_name.'"><br><br>';
+	                 			$output .= 'Admin Email<br><input type="text" id="company_email" name="company_email" value="'.$settings->company_email.'"><br><br></td></tr>';
+	                 $output .= '<tr>
+	                 			 	<td width="350px">Company Info<br><textarea rows="7" cols="60" id="company_info" name="company_info">'.$settings->company_info.'</textarea><br><br></td>';
+	                 	$output .= '<td width="350px">Terms &amp; Conditions<br><textarea rows="7" cols="60" id="terms_conditions" name="terms_conditions">'.$settings->terms_conditions.'</textarea><br><br></td>';
+	                 	$output .= '<td width="350px">Delivery Information<br><textarea rows="7" cols="60" id="delivery_information" name="delivery_information">'.$settings->delivery_information.'</textarea><br><br></td>
+	                 			</tr>
+	                 		</table>';
 					 
 	                 $output .= '<hr>';
 
 	                 $output .= '<h3>Paypal Settings</h3>';
-	                 $output .= 'Live Paypal Account<br><input type="text" id="pp_live_account" name="pp_live_account" value="'.$settings->pp_live_account.'"><br><br>';
-	                 $output .= 'Test Paypal Account<br><input type="text" id="pp_test_account" name="pp_test_account" value="'.$settings->pp_test_account.'"><br><br>';
-	                 if($settings->pp_mode=="Test Mode"){$a='selected="selected"';}else{$b='selected="selected"';}
-					 $output .= 'Mode<br><select name="pp_mode"><option '.$a.'>Test Mode</option><option '.$b.'>Live Mode</option></select><br><br>';
+	                 $output .= '<table>
+									<tr>
+										<td valign="top" width="200px">Live Paypal Account<br><input type="text" id="pp_live_account" name="pp_live_account" value="'.$settings->pp_live_account.'"><br><br>';
+	                 		$output .= 'Test Paypal Account<br><input type="text" id="pp_test_account" name="pp_test_account" value="'.$settings->pp_test_account.'"><br><br></td>';
+	                			 if($settings->pp_mode=="Test Mode"){$a='selected="selected"';}else{$b='selected="selected"';}
+					 $output .= '<td>Mode<br><select name="pp_mode"><option '.$a.'>Test Mode</option><option '.$b.'>Live Mode</option></select><br><br>';
 	                 $output .= 'Return URL<br><input type="text" id="pp_return_url" name="pp_return_url" value="'.$settings->pp_return_url.'"><br><br>';
-	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br>';
+	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br></td></tr></table>';
 	                 $output .= '<hr>';
                      $output .= '<input type="submit" id="submit">';
                      $output .= '</form>';
@@ -225,7 +233,7 @@ function voucher_sold(){
 										</div>';
 							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
 											<div class="moredetails">
-												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" />'.$row->address1.', '.$row->address2.', '.$row->city.', '.$row->state.', '.$row->postalcode.', '.$row->country.'
+												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" />'.$row->address1.', '.$row->address2.', '.$row->city.', '.$row->state.', '.$row->postal_code.', '.$row->country.'
 											</div>
 										</div>';
 

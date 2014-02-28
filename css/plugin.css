@@ -140,5 +140,7 @@ body{
 
 #company_info{	width: 300px;	}
 #terms_conditions{	width: 300px;	}
+#delivery_information{	width: 300px;	}
+
 .new{	background-color: #fffec6;	}
 .legend{ background-color: #fffec6!important; padding: 10px; margin-bottom: 10px; width: 370px;}
