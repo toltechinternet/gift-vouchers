@@ -37,13 +37,13 @@ $('.buy').click(function () {
     // Delivery Information Toggle
     $('.delivery_content').hide();
     $('#show_delivery-' + id).click(function(){
-        $('#delivery_content-' + id).fadeToggle();
+        $('#delivery_content-' + id).toggle();
     });
 
     // Terms and ConditionsToggle
     $(".terms_content").hide();
     $('#show_terms-' + id).click(function(){
-        $('#terms_content-' + id).fadeToggle();
+        $('#terms_content-' + id).toggle();
     });
 
         
