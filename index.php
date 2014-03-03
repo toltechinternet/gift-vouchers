@@ -47,7 +47,7 @@ function gift_voucher_activation() {
 		  status VARCHAR(100) NOT NULL,
 		  pending_reason text,
 		  date_purchased DATETIME,
-		  email_sent CHAR(1) DEFAULT 'N',
+		  email_sent CHAR(3) DEFAULT 'No',
 		  PRIMARY KEY (`id`)
 		)");
     

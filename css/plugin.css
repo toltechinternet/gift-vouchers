@@ -43,6 +43,7 @@ body{
 /* Validation */
 
 .red{	color: #eee!important;		}
+.white{ color: #fff!important;		}
 .error{	
 	padding:10px; 
 	background:#f2dede; 
@@ -132,11 +133,11 @@ body{
 }
 	.hidedetails{
 		display: none; 
-		width: 647px;
+		width: 100%;
 	}
 
-.update_certificate{	background-color: #0074a2;		}
-.update_width{	width: 110px;	}
+.update_certificate{	background-color: #333;		}
+.update_width{	width: 100%;	}
 
 #company_info{	width: 300px;	}
 #terms_conditions{	width: 300px;	}

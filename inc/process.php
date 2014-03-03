@@ -95,7 +95,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 						$data['delivery_method'],
 						$cost,
 						$data['status'],
-						'Payment Uncomplete',
+						'Payment Incomplete',
 						current_time('mysql', 1)
 						)
 				);
@@ -269,7 +269,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 						
 						//IF VOUCHER NEEDS EMAILS TO BE SENT
 						//This will stop the multiple issue of emails as multiple ipn responses come in
-						if($voucher_data->email_sent=="N"){
+						if($voucher_data->email_sent=="No"){
 							$message.="DELIVERY METHOD = ".$voucher_data->delivery_method;
 							$message.= "\n\n";		
 							$message.= "---------> UPDATE DB\n\n";
@@ -373,7 +373,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 							
 							//UPDATE VOUCHER RECORD TO SAY THAT EMAIL HAS NOW BEEN SENT
 							$wpdb->query($wpdb->prepare(
-								"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET email_sent='Y' WHERE ID=%d",
+								"UPDATE ".$wpdb->prefix."toltech_gift_vouchers SET email_sent='Yes' WHERE ID=%d",
 								$data['custom']
 								)
 							);

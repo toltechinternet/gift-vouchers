@@ -57,7 +57,7 @@ function gift_voucher() {
 			if($price == '0.00'){
 				echo '
 					<tr>
-						<th colspan="2"><div class="formtitle">Open Monetary Costing</div></th>
+						<th colspan="2"><div class="formtitle">Choose your voucher value</div></th>
 					</tr>
 					<tr>
 						<td width="130px;">
@@ -75,7 +75,7 @@ function gift_voucher() {
 
 			<tr>
 				<th colspan="2">
-					<div class="formtitle">Your Information</div>
+					<div class="formtitle">Purchaser Information</div>
 				</th>
 			</tr>
 			<tr>
@@ -204,7 +204,7 @@ function gift_voucher() {
 						<?php
 							global $wpdb;
 							$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
-							$settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
+							$settings = $wpdb->get_row("SELECT * FROM ".$table_name. " LIMIT 1");
 
 							$output .= $settings->delivery_information;
 

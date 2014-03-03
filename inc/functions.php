@@ -77,20 +77,35 @@ $settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
 					 
 	                 $output .= '<hr>';
 
-	                 $output .= '<h3>Paypal Settings</h3>';
-	                 $output .= '<table>
-									<tr>
+	                 $output .= '<table style="float: left;" width="870px">
+	                 				<tr valign="top">
+	                 					<td><table>
+									<tr><h3>Paypal Settings</h3>
 										<td valign="top" width="200px">Live Paypal Account<br><input type="text" id="pp_live_account" name="pp_live_account" value="'.$settings->pp_live_account.'"><br><br>';
 	                 		$output .= 'Test Paypal Account<br><input type="text" id="pp_test_account" name="pp_test_account" value="'.$settings->pp_test_account.'"><br><br></td>';
 	                			 if($settings->pp_mode=="Test Mode"){$a='selected="selected"';}else{$b='selected="selected"';}
 					 $output .= '<td>Mode<br><select name="pp_mode"><option '.$a.'>Test Mode</option><option '.$b.'>Live Mode</option></select><br><br>';
 	                 $output .= 'Return URL<br><input type="text" id="pp_return_url" name="pp_return_url" value="'.$settings->pp_return_url.'"><br><br>';
 	                 $output .= 'Cancel URL<br><input type="text" id="pp_cancel_url" name="pp_cancel_url" value="'.$settings->pp_cancel_url.'"><br><br></td></tr></table>';
+	                		$output .= '</td><td>';
+	                
+	                 $output .= '<table>';
+	                 	 $output .= '<tr><h3>Google Analytics (Not yet Working)</h3>';
+	                 	 	 $output .= '<td>Tracking Code <br><input style="width: 260px;" type="text" name="tracking_code" value="UA-xxxxxxxx-x" /></td>';
+	                 	 $output .= '</tr>';
+	                 	  $output .= '<tr>';
+	                 	 	 $output .= '<td>Google Goal<br><input style="width: 260px;" type="text" name="tracking_goal" value="/Goal/Purchased-Gift-Voucher" /></td>';
+	                 	 $output .= '</tr>';
+	                 $output .= '</table>';
+	                 $output .= '</td></tr></table><div style="clear: both;"></div>';
+	                
 	                 $output .= '<hr>';
                      $output .= '<input type="submit" id="submit">';
                      $output .= '</form>';
 	                
 	            $output .= '</div>';
+
+	           
 
                  echo $output;
 }
@@ -188,8 +203,8 @@ function voucher_sold(){
     		$output .= '<div class="legend"><img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" style="float: left; margin-right: 10px; margin-top: -4px;" /> Certificates highlighted are new within a 5 day period.</div>';
 					$output .= '<table class="wp-list-table widefat fixed">';
 					$output .= '<tr>';
-						$output .= '<th class="certificate_id">ID</th>';
-						$output .= '<th class="certificate_th">Name</th>';
+						$output .= '<th class="certificate_id"></th>';
+						$output .= '<th style="width: 120px" class="certificate_th">Purchaser Name</th>';
 						$output .= '<th class="certificate_th">Email</th>';
 						$output .= '<th class="certificate_th">Telephone</th>';
 						$output .= '<th class="certificate_th">Recipient Name</th>';
@@ -207,7 +222,7 @@ function voucher_sold(){
     					$output .= '<tr class="new">';
 						} else { $output .= '<tr>'; }
 					
-						$output .= '<td><a id="id-'.$row->id.'" href="#">'.$row->id.'</a></td>';
+						$output .= '<td><a id="id-'.$row->id.'" href="#"><img width="20" height="20" src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" /></a></td>';
 						$output .= '<td>'.$row->name.'</td>';
 						$output .= '<td><a href="mailto:'.$row->email.'"">'.$row->email.'</a></td>';
 						//$output .= '<td>'.$row->address1.' '.$row->address2.'<br>'.$row->.'</td>';
@@ -228,7 +243,7 @@ function voucher_sold(){
 							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
 											<div class="moredetails">
 												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/paypal.png" style="float: left; margin-right: 15px;" />
-													<strong>Payment Time: </strong> '.$row->date_purchased.' - <strong>Email Sent: </strong> '.$row->email_sent.'
+													<strong>Payment ID:</strong> '.$row->id.' - <strong>Payment Time: </strong> '.$row->date_purchased.' - <strong>Email Sent: </strong> '.$row->email_sent.'
 											</div>
 										</div>';
 							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
@@ -240,9 +255,15 @@ function voucher_sold(){
 							$output .= '<div id="toggle-div-'.$row->id.'" style="display: none;">
 										<form action="'.get_admin_url().'admin-post.php" method="post">
 										<input type="hidden" name="action" value="edit_voucher" />
-											<table class="update_certificate">
+											<table style="width: 100%!important;" class="update_certificate">
 											<tr>
-												<td></td>
+												<th class="white">Purchaser Name</th>
+												<th class="white">Email</th>
+												<th class="white">Telephone</th>
+												<th class="white">Recipient Name</th>
+												<th></th>
+											</tr>
+											<tr>
 												<td><input type="text" name="name" value="'.$row->name.'" class="update_width" /></td>
 												<td><input type="text" name="email" value="'.$row->email.'" class="update_width" /></td>
 												<td><input type="text" name="telephone" value="'.$row->telephone.'" class="update_width" /></td>
