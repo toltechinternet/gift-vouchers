@@ -32,6 +32,10 @@ global $wpdb;
                   <td><strong>Purchased For:</strong></td>
                   <td>' . strip_tags($_GET['recipient']) . '</td>
                  </tr>
+                 <tr>
+                  <td><strong>Voucher Code:</strong></td>
+                  <td>' . strip_tags($_GET['vouchercode']) . '</td>
+                 </tr>
                 </table><br />';
             
                 $body .= '<table style="border: 1px solid black; width: 600px; padding: 5px 20px;">
@@ -135,7 +139,7 @@ global $wpdb;
             
             $body .= '</body></html>';
 
-            $headers = "From: vouchers@mussel-inn.com\r\n";
+      $headers = "From: vouchers@mussel-inn.com\r\n";
 			$headers .= "Reply-To: vouchers@mussel-inn.com\r\n";
 			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";

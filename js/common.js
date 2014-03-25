@@ -5,6 +5,12 @@ jQuery(document).ready(function(){
 
 /////////////////// Back End Voucher System jQuery
 
+  //jQuery('.show_table_information').removeAttr('style'); 
+
+  jQuery(".wp-list-table").filterTable({
+  });
+
+
 	jQuery(".del").click(function(){
     	if (!confirm("Are you sure you wish to delete this sold certificate?")){
       		return false;
@@ -13,14 +19,21 @@ jQuery(document).ready(function(){
 
 	jQuery(document).on("click","[id^=button\\-]",function() {
             var n = jQuery( this ).attr( "id" ).split( "-" ).pop();
-            jQuery( "[id^=toggle\\-div\\-" + n + "]" ).toggle();
-            console.log(n);
+            jQuery( "[id^=toggle\\-div\\-" + n + "]" ).toggle().animate({scrollTop:$("[id^=toggle\\-div\\-" + n + "]").position().top}, 'slow');
       });
+
 
   jQuery(document).on("click","[id^=id\\-]",function() {
             var n = jQuery( this ).attr( "id" ).split( "-" ).pop();
             jQuery( "[id^=payment\\-div\\-" + n + "]" ).toggle();
-            console.log(n);
+			
+			if(jQuery( "#id-"+n+"" ).html()=='<span class="down-arrow"></span>'){
+				jQuery( "#id-"+n+"" ).html('<span class="up-arrow"></span>');
+			}else{
+				jQuery( "#id-"+n+"" ).html('<span class="down-arrow"></span>');
+			}
+			
+			console.log(n);
       });
 
 
@@ -29,6 +42,56 @@ jQuery(document).ready(function(){
 
 
 /////////////////// Gift Voucher Front End UI jQuery
+
+
+$("tr.postal-delivery-selected").hide();
+$("tr.box-ticked").hide();
+
+$('select[id^="method"]').change(function(){
+	
+	var id = $(this).closest('form').attr('id');	
+	var option = this.options[this.selectedIndex];	
+	
+	if(option.value=="Postal"){									
+		$("tr#postal-delivery-selected-"+id).show();			
+		if($("#send_to_recipient_address-"+id).is(':checked')){
+			$("tr#box-ticked-"+id+"-1").show();
+			$("tr#box-ticked-"+id+"-2").show();
+			$("tr#box-ticked-"+id+"-3").show();
+			$("tr#box-ticked-"+id+"-4").show();
+			$("tr#box-ticked-"+id+"-5").show();
+			$("tr#box-ticked-"+id+"-6").show();
+		}
+	}else{
+		$("tr#postal-delivery-selected-"+id).hide();
+		$("tr#box-ticked-"+id+"-1").hide();
+		$("tr#box-ticked-"+id+"-2").hide();
+		$("tr#box-ticked-"+id+"-3").hide();
+		$("tr#box-ticked-"+id+"-4").hide();
+		$("tr#box-ticked-"+id+"-5").hide();
+		$("tr#box-ticked-"+id+"-6").hide();
+	}
+});
+$('.send_to_recipient_address').change(function () {
+	var id = $(this).closest('form').attr('id');											 
+    if($("#send_to_recipient_address-"+id).is(':checked')){
+		$("tr#box-ticked-"+id+"-1").show();
+		$("tr#box-ticked-"+id+"-2").show();
+		$("tr#box-ticked-"+id+"-3").show();
+		$("tr#box-ticked-"+id+"-4").show();
+		$("tr#box-ticked-"+id+"-5").show();
+		$("tr#box-ticked-"+id+"-6").show();
+	}else{
+		$("tr#box-ticked-"+id+"-1").hide();
+		$("tr#box-ticked-"+id+"-2").hide();
+		$("tr#box-ticked-"+id+"-3").hide();
+		$("tr#box-ticked-"+id+"-4").hide();
+		$("tr#box-ticked-"+id+"-5").hide();
+		$("tr#box-ticked-"+id+"-6").hide();
+	}
+	
+});
+
 
 $('.buy').click(function () {
     
@@ -137,6 +200,36 @@ $('.buy').click(function () {
 
                 } else{
                   $('#recipient-'+ id).removeClass('missing').addClass('complete')
+                }
+
+                // Checkbox Validation
+                if($("#send_to_recipient_address-"+id).is(':checked')){
+
+                    if ($('#Raddress1-'+ id).val() == "") {
+                    $('#Raddress1-'+ id).addClass('missing').removeClass('complete').focus();
+                    return false
+
+                    } else{
+                      $('#Raddress1-'+ id).removeClass('missing').addClass('complete')
+                    }
+
+                    if ($('#Rcity-'+ id).val() == "") {
+                    $('#Rcity-'+ id).addClass('missing').removeClass('complete').focus();
+                    return false
+
+                    } else{
+                      $('#Rcity-'+ id).removeClass('missing').addClass('complete')
+                    }
+
+                    if ($('#Rpostalcode-'+ id).val() == "") {
+                    $('#Rpostalcode-'+ id).addClass('missing').removeClass('complete').focus();
+                    return false
+
+                    } else{
+                      $('#Rpostalcode-'+ id).removeClass('missing').addClass('complete')
+                    }
+
+
                 }
 
             });

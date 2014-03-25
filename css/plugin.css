@@ -17,6 +17,17 @@ body{
 .button{	margin-top: 15px;	}
 .clear{		clear: both;	}
 
+.information{
+	list-style-type: none;
+	margin: 15px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+}
+.information li{
+padding: 3px 0px 8px 23px;
+background: transparent url('../images/delivery_terms.png') no-repeat left 0.25em;
+}
+
+
 #formTable{
 	border: 1px solid #eeeeee; 
 	float: left; 
@@ -108,6 +119,11 @@ body{
 		font-weight: bold!important; 
 	}
 
+.line{
+	border-bottom: 1px solid #e3e3e3;
+	margin: 20px 0px;
+}
+
 /* Backend UI */
 
 .certificate_th{
@@ -133,7 +149,8 @@ body{
 }
 	.hidedetails{
 		display: none; 
-		width: 100%;
+		width: 100%!important;
+
 	}
 
 .update_certificate{	background-color: #333;		}
@@ -144,4 +161,37 @@ body{
 #delivery_information{	width: 300px;	}
 
 .new{	background-color: #fffec6;	}
-.legend{ background-color: #fffec6!important; padding: 10px; margin-bottom: 10px; width: 370px;}
+.pending { background-color: #ffdddd!important;	}
+.legend{ background-color: #fffec6!important; padding: 10px; margin-bottom: 10px; margin-right: 60px; width: 370px; float: left;}
+
+.filter{ margin-top: 1px;}
+.search{ padding: 5px!important; }
+
+#show_table_information{
+	display: block!important;
+}
+
+
+.down-arrow{
+width: 0px;
+height: 0px;
+border-style: solid;
+border-width: 8.7px 5px 0 5px;
+border-color: #0074a2 transparent transparent transparent;
+line-height: 0px;
+_border-color: #0074a2 #000000 #000000 #000000;
+_filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+_filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+display:block;
+}
+.up-arrow{
+width: 0px;
+height: 0px;
+border-style: solid;
+border-width: 0 5px 8.7px 5px;
+border-color: transparent transparent #0074a2 transparent;
+line-height: 0px;
+_border-color: #000000 #000000 #0074a2 #000000;
+_filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
+display:block;
+}

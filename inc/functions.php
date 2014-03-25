@@ -200,7 +200,9 @@ function voucher_sold(){
     $output .= '<div class="wrap">';
     $output .= '<div id="icon-options-general" class="icon32"><br></div>';
     	$output .= '<h2>Sold Certificates</h2>';
-    		$output .= '<div class="legend"><img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" style="float: left; margin-right: 10px; margin-top: -4px;" /> Certificates highlighted are new within a 5 day period.</div>';
+    
+		$output .= '<div class="legend"><img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" style="float: left; margin-right: 10px; margin-top: -4px;" /> Certificates highlighted are new within a 5 day period.</div>';
+	
 					$output .= '<table class="wp-list-table widefat fixed">';
 					$output .= '<tr>';
 						$output .= '<th class="certificate_id"></th>';
@@ -215,26 +217,37 @@ function voucher_sold(){
 						$output .= '<th class="certificate_th"></th>';
 					$output .= '</tr>';
 	
+		//Get all Recipient Address info and dump into multi dimensional array, so that we are only executing this query once rather than in the loop
+		//$recipient_data = array();
+		$recipient_data = $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_recipient_address", OBJECT_K );
+	
 		$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers ORDER BY id desc" );
 	
 				foreach($rows as $row){
-					if( strtotime($row->date_purchased) > strtotime('-5 day') ) {
-    					$output .= '<tr class="new">';
-						} else { $output .= '<tr>'; }
 					
-						$output .= '<td><a id="id-'.$row->id.'" href="#"><img width="20" height="20" src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" /></a></td>';
+					if( strtotime($row->date_purchased) > strtotime('-5 day') ) {
+    						$output .= '<tr class="new">';
+						} else { 
+							$output .= '<tr>'; 
+						}
+					if($row->status == 'Pending'){
+							$output .= '<tr class="pending">';
+						}
+					
+						//$output .= '<td><a id="id-'.$row->id.'" href="#"><img width="20" height="20" src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/arrow-down.png" /></a></td>';
+						$output .= '<td><a style="font-size:25px;" id="id-'.$row->id.'" href="#"><span class="down-arrow"></span></a></td>';
 						$output .= '<td>'.$row->name.'</td>';
 						$output .= '<td><a href="mailto:'.$row->email.'"">'.$row->email.'</a></td>';
 						//$output .= '<td>'.$row->address1.' '.$row->address2.'<br>'.$row->.'</td>';
 						$output .= '<td>'.$row->telephone.'</td>';
 						$output .= '<td>'.$row->recipient_name.'</td>';
 						$output .= '<td>'.$row->delivery_method.'</td>';
-						$output .= '<td>'.$row->voucher_cost.'</td>';
+						$output .= '<td>£'.$row->voucher_cost.'</td>';
 						$output .= '<td>'.$row->status.'</td>';
 						$output .= '<td>'.$row->pending_reason.'</td>';
 						$output .= '<td>
 										<a id="button-'.$row->id.'" href="#">Edit</a> - 
-										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address1='.$row->address1.'&address2='.$row->address2.'&city='.$row->city.'&postalcode='.$row->postalcode.'&state='.$row->state.'&country='.$row->country.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
+										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&vouchercode='.$row->voucher_code.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address1='.$row->address1.'&address2='.$row->address2.'&city='.$row->city.'&postalcode='.$row->postalcode.'&state='.$row->state.'&country='.$row->country.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
 										<a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
 					$output .= '</tr>';
 					$output .= '<tr>';
@@ -243,14 +256,29 @@ function voucher_sold(){
 							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
 											<div class="moredetails">
 												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/paypal.png" style="float: left; margin-right: 15px;" />
-													<strong>Payment ID:</strong> '.$row->id.' - <strong>Payment Time: </strong> '.$row->date_purchased.' - <strong>Email Sent: </strong> '.$row->email_sent.'
+													<strong>Voucher Code:</strong> '.$row->voucher_code.' - <strong>Payment Time: </strong> '.$row->date_purchased.' - <strong>Email Sent: </strong> '.$row->email_sent.'
 											</div>
 										</div>';
-							$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
+							//Check if to send directly to Recipient Address
+							foreach ($recipient_data as $key => $val) {
+								$display_default="YES";
+							   if ($val->voucher_id === $row->id) {
+								   	$output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
 											<div class="moredetails">
-												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" />'.$row->address1.', '.$row->address2.', '.$row->city.', '.$row->state.', '.$row->postal_code.', '.$row->country.'
+												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" /><strong>Recipient Name:</strong> '.$val->recipient_name.' - <strong>Recipient Address:</strong> '.$val->address1.', '.$val->address2.', '.$val->city.', '.$val->state.', '.$row->postal_code.', '.$val->country.'
 											</div>
 										</div>';
+										$display_default="NO";
+										break;
+							   }
+						   }
+						   if($display_default!="NO"){
+						   $output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
+											<div class="moredetails">
+												<img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/address.png" style="float: left; margin-right: 15px;" /><strong>Recipient Name:</strong> '.$row->name.' - <strong>Recipient Address:</strong> '.$row->address1.', '.$row->address2.', '.$row->city.', '.$row->state.', '.$row->postal_code.', '.$row->country.' 
+											</div>
+										</div>';
+							}
 
 							$output .= '<div id="toggle-div-'.$row->id.'" style="display: none;">
 										<form action="'.get_admin_url().'admin-post.php" method="post">
@@ -264,11 +292,11 @@ function voucher_sold(){
 												<th></th>
 											</tr>
 											<tr>
-												<td><input type="text" name="name" value="'.$row->name.'" class="update_width" /></td>
-												<td><input type="text" name="email" value="'.$row->email.'" class="update_width" /></td>
-												<td><input type="text" name="telephone" value="'.$row->telephone.'" class="update_width" /></td>
-												<td><input type="text" name="recipient" value="'.$row->recipient_name.'" class="update_width" /></td>
-												<td><input type="submit" value="Update" /><input type="hidden" name="id" value="'.$row->id.'" /></td>
+												<td width="200px"><input type="text" style="width: 200px;" name="name" value="'.$row->name.'" class="update_width" /></td>
+												<td width="300px"><input type="text" style="width: 300px;" name="email" value="'.$row->email.'" class="update_width" /></td>
+												<td width="130px"><input type="text" style="width: 130px;" name="telephone" value="'.$row->telephone.'" class="update_width" /></td>
+												<td width="200px"><input type="text" style="width: 200px;" name="recipient" value="'.$row->recipient_name.'" class="update_width" /></td>
+												<td width="80px"><input type="submit" value="Update" /><input type="hidden" name="id" value="'.$row->id.'" /></td>
 											</tr>
 											</table>
 										</form>

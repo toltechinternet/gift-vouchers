@@ -24,6 +24,10 @@
                   <td><strong>Purchased For:</strong></td>
                   <td>'.$voucher_data->recipient_name.'</td>
                  </tr>
+                 <tr>
+                  <td><strong>Voucher Code:</strong></td>
+                  <td>'.$voucher_data->voucher_code.'</td>
+                 </tr>
                 </table><br />';
             
                 $body .= '<table style="border: 1px solid black; width: 600px; padding: 5px 20px;">

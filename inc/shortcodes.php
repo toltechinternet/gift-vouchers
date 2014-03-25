@@ -19,6 +19,13 @@ function gift_voucher() {
 	}
 
 	?>
+	<h1>Mussel Inn Gift Vouchers</h1>
+	<p style="font-weight: bold;">Mussel Inn Gift Vouchers for our Edinburgh and Glasgow restaurants make the ideal present or treat for special occasions such as birthdays, anniversaries or celebrations and occasions. Perfect for seafood lovers and restaurant goers for any time of year.</p>
+
+	<p>You can collect your voucher at the restaurant of your choice (Edinburgh or Glasgow), we can email it to you for printing out or we can also deliver a printed version of the voucher for a small cost.</p>
+	
+	<div class="line"></div>
+
 	<?php if($voucher->have_posts()) : ?>
 	<?php while($voucher->have_posts()) : ?>
 	<?php $voucher->the_post(); ?>
@@ -117,7 +124,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="city">City <span style="color: red;">*</span>:</label>
+			        <label for="city">Town <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="city-<?php echo get_the_ID(); ?>" name="city" />
@@ -133,7 +140,7 @@ function gift_voucher() {
 			</tr>
 			<tr>
 				<td>
-			        <label for="postalcode">Postal Code <span style="color: red;">*</span>:</label>
+			        <label for="postalcode">Post Code <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
 			    	<input type="text" id="postalcode-<?php echo get_the_ID(); ?>" name="postalcode" />
@@ -184,18 +191,85 @@ function gift_voucher() {
 			        <label for="method">Delivery Method <span style="color: red;">*</span>:</label>
 			    </td>
 			    <td>
-			    	<select name="method" id="method">
+			    	<select name="method" id="method-<?php echo get_the_ID(); ?>">
 						<option value="Email">Delivery by Email</option>
-						<option value="Postal">Deliver by Postal (additional £3.50)</option>
+						<option value="Postal">Deliver by Post (additional £3.50)</option>
 						<option value="Collection-Glasgow">Collection from Glasgow restaurant</option>
 						<option value="Collection-Edinburgh">Collection from Edinburgh restaurant</option>
 					</select>
 			    </td>
 			</tr>
+			
+			<!-- HIDDEN -->			
+			<tr id="postal-delivery-selected-<?php echo get_the_ID(); ?>" class="postal-delivery-selected">
+				<td><label for="send-to-recipient-address">Post directly to Recipient? :</label></td>
+				<td><input type="checkbox" name="send_to_recipient_address" class="send_to_recipient_address" id="send_to_recipient_address-<?php echo get_the_ID(); ?>" value="Yes"></td>
+			</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-1">
+					<td>
+						<label for="Raddress1">Recipient Address 1 <span style="color: red;">*</span>:</label>
+					</td>
+					<td>
+						<input type="text" id="Raddress1-<?php echo get_the_ID(); ?>" name="Raddress1" />
+					</td>
+				</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-2">
+					<td>
+						<label for="Raddress2">Recipient Address 2:</label>
+					</td>
+					<td>
+						<input type="text" id="Raddress2-<?php echo get_the_ID(); ?>" name="Raddress2" />
+					</td>
+				</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-3">
+					<td>
+						<label for="city">Recipient Town <span style="color: red;">*</span>:</label>
+					</td>
+					<td>
+						<input type="text" id="Rcity-<?php echo get_the_ID(); ?>" name="Rcity" />
+					</td>
+				</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-4">
+					<td>
+						<label for="Rstate">Recipient County / State:</label>
+					</td>
+					<td>
+						<input type="text" id="Rstate-<?php echo get_the_ID(); ?>" name="Rstate" />
+					</td>
+				</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-5">
+					<td>
+						<label for="Rpostalcode">Recipient Post Code <span style="color: red;">*</span>:</label>
+					</td>
+					<td>
+						<input type="text" id="Rpostalcode-<?php echo get_the_ID(); ?>" name="Rpostalcode" />
+					</td>
+				</tr>
+				<tr class="box-ticked" id="box-ticked-<?php echo get_the_ID(); ?>-6">
+					<td>
+						<label for="Rcountry">Recipient Country <span style="color: red;">*</span>:</label>
+					</td>
+					<td>
+						<select name="Rcountry" id="country-<?php echo get_the_ID(); ?>">
+							<option value="Australia">Australia</option>
+							<option value="Canada">Canada</option>
+							<option value="France">France</option>
+							<option value="Germany">Germany</option>
+							<option value="Ireland">Ireland</option>
+							<option value="Italy">Italy</option>
+							<option value="Netherlands">Netherlands</option>
+							<option value="Spain">Spain</option>
+							<option value="United Kingdom" selected="selected">United Kingdom</option>
+							<option value="United States">United States</option>
+						</select>
+					</td>
+				</tr>
+<!-- END -->	
+						
 			<tr>
 				<td></td>
 				<td>
-				<ul class="formattedList">
+				<ul class="information">
 					<li><a class="show_delivery" id="show_delivery-<?php echo get_the_ID(); ?>">Delivery Information</a></li>
 				</ul>
 					<div id="delivery_content-<?php echo get_the_ID(); ?>" class="delivery_content">
@@ -205,14 +279,14 @@ function gift_voucher() {
 							global $wpdb;
 							$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
 							$settings = $wpdb->get_row("SELECT * FROM ".$table_name. " LIMIT 1");
-
-							$output .= $settings->delivery_information;
+							
+							$output = $settings->delivery_information;
 
 							echo nl2br($output);
 						?>
 
 					</div>
-				<ul class="formattedList" style="margin-top: 0px!important; margin-bottom: 0px!important;">
+				<ul class="information" style="margin-top: 0px!important; margin-bottom: 0px!important;">
 					<li><a class="show_terms" id="show_terms-<?php echo get_the_ID(); ?>">Terms and Conditions</a></li>
 				</ul>
 					<div id="terms_content-<?php echo get_the_ID(); ?>" class="terms_content">
@@ -233,7 +307,7 @@ function gift_voucher() {
 				<br />
 				<small>Payment is via Paypal. By clicking the Buy Voucher button below you will be taken to PayPal’s secure payment system.</small>
 				<br /><br />
-					<input type="submit" value="Process Voucher" id="process-<?php echo get_the_ID(); ?>" /></td>
+					<input type="submit" value="Buy Voucher" id="process-<?php echo get_the_ID(); ?>" /></td>
         </table>
 		</form>
 

@@ -24,16 +24,22 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 		$data['recipient_name'] = $_REQUEST['recipient'];
 		$data['delivery_method'] = $_REQUEST['method'];
 			if($data['delivery_method']=="Postal"){$shipping=3.50;}
-		//$data['voucher_cost'] = $_REQUEST['cost'];
 		$data['status'] = "Pending";
 		$cost = $_REQUEST['cost'];
 		if(isset($_REQUEST['cost-monetary']) && $_REQUEST['cost-monetary']!=""){
 			$cost = $_REQUEST['cost-monetary'];
 		}
-
+			//SET SOME MORE VARIABLE IF 'SEND DIRECTLY' CHOSEN
+			if(isset($_REQUEST['send_to_recipient_address']) && $_REQUEST['send_to_recipient_address']="Yes"){
+				$data['Raddress1'] = $_REQUEST['Raddress1'];
+				$data['Raddress2'] = $_REQUEST['Raddress2'];
+				$data['Rcity'] = $_REQUEST['Rcity'];
+				$data['Rstate'] = $_REQUEST['Rstate'];
+				$data['Rpostalcode'] = $_REQUEST['Rpostalcode'];
+				$data['Rcountry'] = $_REQUEST['Rcountry'];
+			}
+		
 //VALIDATE INPUT
-	//check email is valid
-	//echo "Check Email Address Valid:<br>";
 	$kick_back=0;
 	$error_msg="";
 		if($data['name']==""){$error_msg.="Please supply a <b>NAME</b>:";$kick_back=1;}
@@ -63,9 +69,10 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 	
 	//RECORD PURCHASE REQUEST
 	//Add to db, so even if the payment fails we still have a record of the attempt.
-	
+	$voucher_code=uniqid();
 	$wpdb->query($wpdb->prepare(
 						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers (
+						voucher_code,
 						name,
 						email,
 						address1,
@@ -81,7 +88,8 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 						status,
 						pending_reason,
 						date_purchased
-						) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%f,%s,%s,%s)",
+						) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%f,%s,%s,%s)",
+						$voucher_code,
 						$data['name'],
 						$data['email'],
 						$data['address1'],
@@ -101,6 +109,37 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 				);
 				
 	$ID=$wpdb->insert_id;
+	
+	//IF DELIVERY METHOD = POSTAL && POST DIRECT TO RECIPIENT CHECKED
+	//THEN ADD THE DETAILS TO toltech_gift_vouchers_recipient_address TABLE
+	if(isset($_REQUEST['send_to_recipient_address']) && $_REQUEST['send_to_recipient_address']="Yes"){
+	
+		$wpdb->query($wpdb->prepare(
+						"INSERT INTO ".$wpdb->prefix."toltech_gift_vouchers_recipient_address (
+						voucher_id,
+						voucher_code,
+						recipient_name,
+						address1,
+						address2,
+						city,
+						state,
+						postal_code,
+						country
+						) VALUES (%d,%s,%s,%s,%s,%s,%s,%s,%s)",
+						$ID,
+						$voucher_code,
+						$data['recipient_name'],
+						$data['Raddress1'],
+						$data['Raddress2'],
+						$data['Rcity'],
+						$data['Rstate'],
+						$data['Rpostalcode'],
+						$data['Rcountry']
+						)
+				);
+	
+	}
+	
 
 	//build query string to send onto paypal
 	//PAYPAL SETTINGS FROM DB
@@ -265,7 +304,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 						//QUERY DB TO FIND OUT WHAT TYPE OF DELIVERY METHOD CHOSEN
 						$voucher_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers WHERE ID=%d",$data['custom']),OBJECT);
 						//QUERY DB FOR SETTINGS DATA
-						$settings = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_settings"),OBJECT);
+						$settings = $wpdb->get_row("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_settings",OBJECT);
 						
 						//IF VOUCHER NEEDS EMAILS TO BE SENT
 						//This will stop the multiple issue of emails as multiple ipn responses come in
@@ -295,12 +334,40 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								//SEND EMAIL TO ADMIN
 								$message.= "ALERT ADMIN(".$settings->company_email.") OF VOUCHER PURCHASE\n\n";
 								$recipients=$settings->company_email; //Email admin
-								$subject="Gift Voucher Purchased";
+								$subject="Administrator Notification - Gift Voucher Purchased";
 								$body='<html><head></head><body style="font-family:helvetica">
-								<h1>Congratulations!</h1>
+								<h1>Notification!</h1>
 								<h2>Gift Voucher Purchased</h2>
 								You are recieving this email because a Gift Voucher has recently been purchased.
 								<br>The customer decided on <strong>EMAIL</strong> as their delivery method so this is just an alert and requires no action on your part.
+								<br /><br />
+								<table rules="all" style="border: solid 1px #000; width: 600px;">
+								 <tr>
+								  <td style="width: 120px;"><strong>Purchased By:</strong></td>
+								  <td>'.$voucher_data->name.'( <a href="mailto:'.$voucher_data->email.'">'.$voucher_data->email.'</a> )</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Address:</strong></td>
+								  <td>'.$voucher_data->address1.' '.$voucher_data->address2.', '.$voucher_data->city.', '.$voucher_data->postal_code.', '.$voucher_data->state.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Telephone:</strong></td>
+								  <td>'.$voucher_data->telephone.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Delivery Method:</strong></td>
+								  <td>'.$voucher_data->delivery_method.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Purchased For:</strong></td>
+								  <td>'.$voucher_data->recipient_name.'</td>
+								 </tr>
+								 <tr>
+								  <td><strong>Voucher Code:</strong></td>
+								  <td>'.$voucher_data->voucher_code.'</td>
+								 </tr>
+								</table>
+
 								</body></html>';
 								$headers="From: vouchers@mussel-inn.com\r\n";
 								$headers.="Reply-To: vouchers@mussel-inn.com\r\n";
@@ -339,23 +406,50 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								 </tr>
 								 <tr>
 								  <td><strong>Delivery Method:</strong></td>
-								  <td>'.$voucher_data->delivery_method.'</td>
+								  <td>';
+
+				  				 if($voucher_data->delivery_method=="Collection-Edinburgh"){
+				                  		 $body .= 'Pickup at Edinburgh Mussel Inn Restaurant';
+				                  	}
+								 else if($voucher_data->delivery_method=="Collection-Glasgow"){
+										 $body .= 'Pickup at Glasgow Mussel Inn Restaurant';
+									}
+								 else if($voucher_data->delivery_method=="Postal"){
+										$body .= 'Delivery by Postal';
+									}
+
+						$body .= '</td>
 								 </tr>
 								 <tr>
 								  <td><strong>Purchased For:</strong></td>
 								  <td>'.$voucher_data->recipient_name.'</td>
 								 </tr>
+								 <tr>
+								  <td><strong>Voucher Code:</strong></td>
+								  <td>'.$voucher_data->voucher_code.'</td>
+								 </tr>
 								</table><br />
 								<h2>What Do I Do Next?</h2>';
-								if($voucher_data->delivery_method=="Collection-Edinburgh"){
-									$body.='Pop into the EDINBURGH resturant to pickup your voucher.';
+								 if($voucher_data->delivery_method=="Collection-Edinburgh"){
+									$body.='<h3>Instructions to collect your voucher</h3>
+									<ol>
+						            	<li>Visit Mussel Inn Edinburgh (<a href="http://www.mussel-inn.com/seafood-restaurant-edinburgh/mussel-inn-edinburgh-opening-hours/">Please check opening hours</a>)</li>
+						            	<li>Bring this email with you</li>
+						           		<li>Collect your voucher (<a href="http://www.mussel-inn.com/seafood-restaurant-edinburgh/mussel-inn-edinburgh-opening-hours/">Directions to Mussel Inn Edinburgh</a>)</li>
+						            </ol>';
 								}
 								else if($voucher_data->delivery_method=="Collection-Glasgow"){
-									$body.='Pop into the GLASGOW resturant to pickup your voucher.';
+									$body.='<h3>Instructions to collect your voucher</h3>
+									<ol>
+						            	<li>Visit Mussel Inn Glasgow (<a href="http://www.mussel-inn.com/seafood-restaurant-glasgow/mussel-inn-glasgow-opening-hours/">Please check opening hours</a>)</li>
+						            	<li>Bring this email with you</li>
+						           		<li>Collect your voucher (<a href="http://www.mussel-inn.com/seafood-restaurant-glasgow/restaurant-glasgow-city-centre/">Directions to Mussel Inn Glasgow</a>)</li>
+						            </ol>';
 								}
 								else if($voucher_data->delivery_method=="Postal"){
 									$body.='Sit back and relax, you will recieve your voucher in the mail in a few days time.';
 								}
+								 
 								$body.='</ul>
 								<h3>Thank you from everyone at '.$settings->company_name.'</h3>
 								</body></html>';

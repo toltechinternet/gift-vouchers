@@ -18,6 +18,7 @@ function scripts_common() {
     wp_register_style( 'gift-vouchers', plugins_url( 'gift-vouchers/css/plugin.css' ) );
 	wp_enqueue_style( 'gift-vouchers' );
     wp_enqueue_script( 'common_js', plugins_url( '/js/common.js', __FILE__ ));
+    wp_enqueue_script( 'filter_js', plugins_url( '/js/jquery.filtertable.min.js', __FILE__ ));
 }   
 
 register_activation_hook( __FILE__, 'gift_voucher_activation' );
@@ -32,6 +33,7 @@ function gift_voucher_activation() {
 		/*****************************************************/
 		$wpdb->query("CREATE TABLE " . $table_name . " (
 		  id int(11) NOT NULL AUTO_INCREMENT,
+		  voucher_code VARCHAR(225) NOT NULL,
 		  name VARCHAR(225) NOT NULL,
 		  email VARCHAR(225) NOT NULL,
 		  address1 VARCHAR(225) NOT NULL,
@@ -41,7 +43,7 @@ function gift_voucher_activation() {
 		  postal_code VARCHAR(225) NOT NULL,
 		  country varchar(225) NOT NULL,
 		  telephone VARCHAR(50) NOT NULL,
-		  recipient_name VARCHAR(100) NOT NULL,
+		  recipient_name VARCHAR(225) NOT NULL,
 		  delivery_method VARCHAR(50) NOT NULL,
 		  voucher_cost DECIMAL(10,2) NOT NULL,
 		  status VARCHAR(100) NOT NULL,
@@ -55,6 +57,7 @@ function gift_voucher_activation() {
 			$voucher_count = $wpdb->query("SELECT * FROM ".$table_name);
 			if($voucher_count==0){
 				$wpdb->query("INSERT INTO ".$table_name."(
+					voucher_code,
 					name,
 					email,
 					address1,
@@ -70,16 +73,17 @@ function gift_voucher_activation() {
 					status,
 					pending_reason
 				) VALUES (
-					'John Doe',
-					'j.doe@test.com',
-					'123',
-					'Fake Street',
-					'Glasgow',
-					'Greater Glasgow',
-					'G24FD',
+					'".uniqid()."',
+					'Brian Johnstone',
+					'info@toltech.co.uk',
+					'22',
+					'Pottery Steet',
+					'Greenock',
+					'Inverclyde',
+					'PA15 2UZ',
 					'United Kingdom',
-					'123456789',
-					'Jane Doe',
+					'01475 746213',
+					'Grahame Anderson',
 					'Email',
 					'20.00',
 					'Pending',
@@ -87,6 +91,26 @@ function gift_voucher_activation() {
 				)");
 			}
     }
+	
+	$table_name = $wpdb->prefix . 'toltech_gift_vouchers_recipient_address'; 
+	if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name){
+		/**************************************************************************/
+		// Create table to store recipient address if to be sent directly to them //
+		/**************************************************************************/
+		$wpdb->query("CREATE TABLE " . $table_name . " (
+		  id int(11) NOT NULL AUTO_INCREMENT,
+		  voucher_id int(11) NOT NULL,
+		  voucher_code VARCHAR(225) NOT NULL,
+		  recipient_name VARCHAR(225) NOT NULL,
+		  address1 VARCHAR(225) NOT NULL,
+		  address2 VARCHAR(225),
+		  city VARCHAR(225),
+		  state VARCHAR(225),
+		  postal_code VARCHAR(225) NOT NULL,
+		  country varchar(225) NOT NULL,
+		  PRIMARY KEY (`id`)
+		)");
+	}
 
 	$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings'; 
 	if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name){
