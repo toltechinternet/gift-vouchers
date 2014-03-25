@@ -19,7 +19,7 @@ jQuery(document).ready(function(){
 
 	jQuery(document).on("click","[id^=button\\-]",function() {
             var n = jQuery( this ).attr( "id" ).split( "-" ).pop();
-            jQuery( "[id^=toggle\\-div\\-" + n + "]" ).toggle().animate({scrollTop:$("[id^=toggle\\-div\\-" + n + "]").position().top}, 'slow');
+            jQuery( "[id^=toggle\\-div\\-" + n + "]" ).toggle();
       });
 
 
@@ -29,11 +29,10 @@ jQuery(document).ready(function(){
 			
 			if(jQuery( "#id-"+n+"" ).html()=='<span class="down-arrow"></span>'){
 				jQuery( "#id-"+n+"" ).html('<span class="up-arrow"></span>');
+				jQuery( 'html, body' ).animate({scrollTop: jQuery("#id-"+n+"").offset().top-40}, 1000);
 			}else{
 				jQuery( "#id-"+n+"" ).html('<span class="down-arrow"></span>');
 			}
-			
-			console.log(n);
       });
 
 

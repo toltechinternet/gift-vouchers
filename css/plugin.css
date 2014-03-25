@@ -173,6 +173,7 @@ background: transparent url('../images/delivery_terms.png') no-repeat left 0.25e
 
 
 .down-arrow{
+cursor:pointer;
 width: 0px;
 height: 0px;
 border-style: solid;
@@ -185,6 +186,7 @@ _filter: progid:DXImageTransform.Microsoft.Chroma(color='#000000');
 display:block;
 }
 .up-arrow{
+cursor:pointer;
 width: 0px;
 height: 0px;
 border-style: solid;

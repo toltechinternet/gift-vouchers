@@ -222,9 +222,13 @@ function voucher_sold(){
 		$recipient_data = $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_recipient_address", OBJECT_K );
 	
 		$rows= $wpdb->get_results( "SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers ORDER BY id desc" );
-	
+		
+		if (empty($rows)) {
+			 $output .= '<tr><td colspan="10">You have no sold certificates as of yet, please try again later!</td></tr>';
+		} 
+
 				foreach($rows as $row){
-					
+									
 					if( strtotime($row->date_purchased) > strtotime('-5 day') ) {
     						$output .= '<tr class="new">';
 						} else { 
@@ -233,9 +237,9 @@ function voucher_sold(){
 					if($row->status == 'Pending'){
 							$output .= '<tr class="pending">';
 						}
-					
+						
 						//$output .= '<td><a id="id-'.$row->id.'" href="#"><img width="20" height="20" src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/arrow-down.png" /></a></td>';
-						$output .= '<td><a style="font-size:25px;" id="id-'.$row->id.'" href="#"><span class="down-arrow"></span></a></td>';
+						$output .= '<td><a style="font-size:25px;" id="id-'.$row->id.'" style="cursor:pointer;"><span class="down-arrow"></span></a></td>';
 						$output .= '<td>'.$row->name.'</td>';
 						$output .= '<td><a href="mailto:'.$row->email.'"">'.$row->email.'</a></td>';
 						//$output .= '<td>'.$row->address1.' '.$row->address2.'<br>'.$row->.'</td>';
@@ -272,6 +276,7 @@ function voucher_sold(){
 										break;
 							   }
 						   }
+						  
 						   if($display_default!="NO"){
 						   $output .= '<div id="payment-div-'.$row->id.'" class="hidedetails">
 											<div class="moredetails">
@@ -303,9 +308,10 @@ function voucher_sold(){
 										</div>';
 						$output .= '</td>';
 					$output .= '</tr>';
-				}
+
+				} 
 					$output .= '</table></div>';
-	
+
 			   echo $output;
 }
 
