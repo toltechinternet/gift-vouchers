@@ -434,15 +434,15 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 									$body.='<h3>Instructions to collect your voucher</h3>
 									<ol>
 						            	<li>Visit Mussel Inn Edinburgh (<a href="http://www.mussel-inn.com/seafood-restaurant-edinburgh/mussel-inn-edinburgh-opening-hours/">Please check opening hours</a>)</li>
-						            	<li>Bring this email with you</li>
-						           		<li>Collect your voucher (<a href="http://www.mussel-inn.com/seafood-restaurant-edinburgh/mussel-inn-edinburgh-opening-hours/">Directions to Mussel Inn Edinburgh</a>)</li>
+						            	<li>Bring a printout of this email</li>
+						           		<li>Collect your voucher (<a href="http://www.mussel-inn.com/seafood-restaurant-edinburgh/directions/">Directions to Mussel Inn Edinburgh</a>)</li>
 						            </ol>';
 								}
 								else if($voucher_data->delivery_method=="Collection-Glasgow"){
 									$body.='<h3>Instructions to collect your voucher</h3>
 									<ol>
 						            	<li>Visit Mussel Inn Glasgow (<a href="http://www.mussel-inn.com/seafood-restaurant-glasgow/mussel-inn-glasgow-opening-hours/">Please check opening hours</a>)</li>
-						            	<li>Bring this email with you</li>
+						            	<li>Bring a printout of this email</li>
 						           		<li>Collect your voucher (<a href="http://www.mussel-inn.com/seafood-restaurant-glasgow/restaurant-glasgow-city-centre/">Directions to Mussel Inn Glasgow</a>)</li>
 						            </ol>';
 								}
