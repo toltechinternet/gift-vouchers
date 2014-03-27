@@ -203,7 +203,7 @@ function voucher_sold(){
     
 		$output .= '<div class="legend"><img src="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/images/info.png" style="float: left; margin-right: 10px; margin-top: -4px;" /> Certificates highlighted are new within a 5 day period.</div>';
 	
-					$output .= '<table class="wp-list-table widefat fixed">';
+					$output .= '<table class="wp-list-table widefat fixed" id="filter-me">';
 					$output .= '<tr>';
 						$output .= '<th class="certificate_id"></th>';
 						$output .= '<th style="width: 120px" class="certificate_th">Purchaser Name</th>';
@@ -249,10 +249,11 @@ function voucher_sold(){
 						$output .= '<td>£'.$row->voucher_cost.'</td>';
 						$output .= '<td>'.$row->status.'</td>';
 						$output .= '<td>'.$row->pending_reason.'</td>';
-						$output .= '<td>
-										<a id="button-'.$row->id.'" href="#">Edit</a> - 
-										<a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&vouchercode='.$row->voucher_code.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address1='.$row->address1.'&address2='.$row->address2.'&city='.$row->city.'&postalcode='.$row->postalcode.'&state='.$row->state.'&country='.$row->country.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a> - 
-										<a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
+						$output .= '<td><a id="button-'.$row->id.'" href="#">Edit</a>';
+						if($row->delivery_method=="Email"){
+							$output .= ' - <a href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/resend-certificate.php?id='.$row->id.'&vouchercode='.$row->voucher_code.'&name='.$row->name.'&email='.$row->email.'&recipient='.$row->recipient_name.'&address1='.$row->address1.'&address2='.$row->address2.'&city='.$row->city.'&postalcode='.$row->postalcode.'&state='.$row->state.'&country='.$row->country.'&telephone='.$row->telephone.'&cost='.$row->voucher_cost.'">Resend</a>'; 
+						}
+						$output .= '<br><a class="del" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/delete-certificate.php?id='.$row->id.'">Delete</a></td>';
 					$output .= '</tr>';
 					$output .= '<tr>';
 						$output .= '<td colspan="10">';

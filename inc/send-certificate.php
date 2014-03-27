@@ -23,8 +23,22 @@
                  <tr>
                   <td><strong>Purchased For:</strong></td>
                   <td>'.$voucher_data->recipient_name.'</td>
-                 </tr>
-                 <tr>
+                 </tr>';
+				 
+				 if($voucher_data->delivery_method=="Postal"){
+				 	$recipient_data = $wpdb->get_row($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."toltech_gift_vouchers_recipient_address WHERE voucher_id=%d",$data['custom']),OBJECT);
+					if($recipient_data != NULL){
+						$body.='<tr>
+						<td><strong>Recipient Address:</strong></td>
+						<td>'.$recipient_data->address1.' '.$recipient_data->address2.', '.$recipient_data->city.', '.$recipient_data->postal_code.', '.$recipient_data->state.'</td>
+						</tr><tr>
+						<td><strong>Send Voucher Directly To Recipient:</strong></td>
+						<td>YES</td>
+						</tr>';
+					}
+				 }
+				 
+               $body.='<tr>
                   <td><strong>Voucher Code:</strong></td>
                   <td>'.$voucher_data->voucher_code.'</td>
                  </tr>
