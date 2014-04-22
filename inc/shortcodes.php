@@ -295,9 +295,9 @@ function gift_voucher() {
 						<?php
 							global $wpdb;
 							$table_name = $wpdb->prefix . 'toltech_gift_vouchers_settings';
-							$settings = $wpdb->get_row("SELECT * FROM ".$table_name,OBJECT);
+							$settings = $wpdb->get_row("SELECT * FROM ".$table_name. " LIMIT 1");
 
-							$output .= $settings->terms_conditions;
+							$output = $settings->terms_conditions;
 
 							echo nl2br($output);
 						?>

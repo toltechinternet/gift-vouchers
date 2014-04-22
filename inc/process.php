@@ -42,6 +42,9 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 //VALIDATE INPUT
 	$kick_back=0;
 	$error_msg="";
+	
+		if(($cost < 20.00) || ($cost > 100.00)){$error_msg.="Please supply a <b>VOUCHER COST</b> between &pound;20 and &pound;100:";$kick_back=1;}
+		
 		if($data['name']==""){$error_msg.="Please supply a <b>NAME</b>:";$kick_back=1;}
 		if($data['email']==""){$error_msg="Please supply an <b>EMAIL</b>:";$kick_back=1;}
 		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){	$error_msg.="Please supply a <b>VALID EMAIL ADDRESS</b>:";$kick_back=1;}

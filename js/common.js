@@ -110,17 +110,16 @@ jQuery(document).ready(function($){
 			  //Check if exists before attempting monetary validation
 			  if ($('#cost-monetary-'+ id).length) {
 				  // Monetary Validation
-				  if ($('#cost-monetary-'+ id).val() < 20.00) {
+				if ($('#cost-monetary-'+ id).val() < 20.00) {
 				  //FAIL
 				  $('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
 				  console.log("< 20.00 MATCH - "+$('#cost-monetary-'+ id).val());
-						return false
+					return false
 				} else{
 				  if ($('#cost-monetary-'+ id).val() <= 100.00) {
 					//SUCCESS
 					$('#cost-monetary-'+ id).removeClass('missing').addClass('complete');
 					console.log("<= 100.00 MATCH - "+$('#cost-monetary-'+ id).val());
-					
 				  }else{
 					//FAIL
 					$('#cost-monetary-'+ id).addClass('missing').removeClass('complete').focus();
@@ -129,7 +128,7 @@ jQuery(document).ready(function($){
 				  }
 				}
 			  }
-	
+		
 				// Form Validation
 					if ($('#name-'+ id).val() == "") {
 						$('#name-'+ id).addClass('missing').removeClass('complete').focus();
