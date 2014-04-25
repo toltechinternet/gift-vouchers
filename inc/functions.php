@@ -311,7 +311,7 @@ function voucher_sold(){
 					$output .= '</tr>';
 
 				} 
-					$output .= '</table></div>';
+					$output .= '</table></div><a style="margin-top: 15px;" class="button button-primary button-large" href="'. get_bloginfo("url") .'/wp-content/plugins/gift-vouchers/inc/export.php">Export Data</a>';
 
 			   echo $output;
 }
