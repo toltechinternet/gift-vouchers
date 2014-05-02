@@ -378,6 +378,9 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								$headers.="Content-Type: text/html; charset=ISO-8859-1\r\n";
 								mail($recipients, $subject, $body, $headers);
 								
+								//alert toltech of purchase
+								include('toltech-alert.php');
+								
 								$message.= "END\n\n";
 							}
 							else if($voucher_data->delivery_method=="Collection-Glasgow" || $voucher_data->delivery_method=="Collection-Edinburgh" || $voucher_data->delivery_method=="Postal"){
@@ -421,7 +424,7 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 										$body .= 'Delivery by Postal';
 									}
 
-						$body .= '</td>
+								$body .= '</td>
 								 </tr>
 								 <tr>
 								  <td><strong>Purchased For:</strong></td>
@@ -461,11 +464,16 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								$headers.="MIME-Version: 1.0\r\n";
 								$headers.="Content-Type: text/html; charset=ISO-8859-1\r\n";
 								mail($recipients, $subject, $body, $headers);
+								
+								//alert toltech of purchase
+								include('toltech-alert.php');
+								
 								$message.= "END\n\n";
 							}
 							else{
 							//PROBLEM WITH DELIVERY METHOD, EMAIL ADMIN
 								$message.= "SEND EMAIL TO ADMIN TO ALERT OF VOUCHER PURCHASE WITHOUT DELIVERY METHOD SPECIFIED\n\n";
+								
 							}
 							
 							//UPDATE VOUCHER RECORD TO SAY THAT EMAIL HAS NOW BEEN SENT
