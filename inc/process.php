@@ -388,7 +388,13 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								//SEND VOUCHER TO ADMIN FOR PICKUP OR POSTAL PURPOSES
 								$message.= "ATTEMPT TO SEND VOUCHER TO ADMIN (".$settings->company_email.") VIA EMAIL\n\n";
 								$message.= "INCLUDE send-certificate.php\n\n";
-								$recipients = $settings->company_email;//Email to Matt
+								if($voucher_data->delivery_method == "Collection-Edinburgh"){
+									$recipients = "janne@mussel-inn.com"; //Email to Janne
+								}else{
+									$recipients = $settings->company_email;//Email to Matt
+								}
+								
+								
 								include('send-certificate.php');
 								
 								//SEND EMAIL TO CUSTOMER
@@ -401,6 +407,10 @@ if (!isset($_POST["txn_id"]) && !isset($_POST["txn_type"])){
 								 <tr>
 								  <td style="width: 120px;"><strong>Purchased By:</strong></td>
 								  <td>'.$voucher_data->name.'( <a href="mailto:'.$voucher_data->email.'">'.$voucher_data->email.'</a> )</td>
+								 </tr>
+								 <tr>
+								  <td style="width: 120px;"><strong>Voucher Cost:</strong></td>
+								  <td>£'.$voucher_data->voucher_cost.'</td>
 								 </tr>
 								 <tr>
 								  <td><strong>Address:</strong></td>

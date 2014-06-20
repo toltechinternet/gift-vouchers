@@ -64,7 +64,7 @@
                          </tr>
                          <tr>
                           <td>
-                              <img src="http://www.mussel-inn.com/giftvoucher/images/email_underline.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
+                              <img src="http://www.mussel-inn.com/giftvoucher/images/email_line.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
                           </td>
                          </tr>
                          <tr>
@@ -77,7 +77,7 @@
                          </tr>
                          <tr>
                           <td>
-                              <img src="http://www.mussel-inn.com/giftvoucher/images/email_underline.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
+                              <img src="http://www.mussel-inn.com/giftvoucher/images/email_line.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
                           </td>
                          </tr>
                         </table>
@@ -120,7 +120,7 @@
                          </tr>
                          <tr>
                           <td>
-                                <img src="http://www.mussel-inn.com/giftvoucher/images/email_underline.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
+                                <img src="http://www.mussel-inn.com/giftvoucher/images/email_line.gif" alt="Mussel Inn Divider Line" title="Mussel Inn Divider Line" />
                           </td>
                          </tr>
                         </table>                                        
